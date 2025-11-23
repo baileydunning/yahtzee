@@ -1,0 +1,373 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Navigation } from '@/components/Navigation';
+import { DiceRoller } from '@/components/DiceRoller';
+import { InteractiveClassicScorecard } from '@/components/InteractiveClassicScorecard';
+import { InteractiveRainbowScorecard } from '@/components/InteractiveRainbowScorecard';
+import { gameService } from '@/services/gameService';
+import { classicScoringEngine } from '@/services/scoringEngine';
+import { rainbowScoringEngine, RAINBOW_COLORS } from '@/services/rainbowScoringEngine';
+import { GameState, ClassicScores, RainbowScores, HighScore, DiceColor } from '@/types/game';
+import { ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
+const Game = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
+  const [isRolling, setIsRolling] = useState(false);
+
+  useEffect(() => {
+    const currentGame = gameService.getCurrentGame();
+    if (!currentGame) {
+      navigate('/');
+    } else {
+      setGameState(currentGame);
+    }
+  }, [navigate]);
+
+  if (!gameState) return null;
+
+  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+  const { turnState } = gameState;
+
+  const rollDice = () => {
+    if (turnState.rollsLeft === 0 || isRolling) return;
+
+    setIsRolling(true);
+
+    // Roll animation duration
+    setTimeout(() => {
+      const newDice = turnState.currentDice.map((die, index) => {
+        if (turnState.heldDice[index] && turnState.rollsLeft < 3) {
+          return die; // Keep held dice values
+        }
+        return Math.floor(Math.random() * 6) + 1;
+      });
+
+      const newColors = turnState.currentColors.map((color, index) => {
+        // Keep color for held dice
+        if (turnState.heldDice[index] && turnState.rollsLeft < 3) {
+          return color;
+        }
+        // Generate new color for rolled dice
+        if (gameState.mode === 'rainbow') {
+          return RAINBOW_COLORS[Math.floor(Math.random() * RAINBOW_COLORS.length)];
+        }
+        return 'neutral' as const;
+      });
+
+      const updatedState: GameState = {
+        ...gameState,
+        turnState: {
+          ...turnState,
+          currentDice: newDice,
+          currentColors: newColors,
+          rollsLeft: turnState.rollsLeft - 1,
+          hasRolled: true,
+        },
+      };
+
+      setGameState(updatedState);
+      gameService.saveCurrentGame(updatedState);
+      setIsRolling(false);
+    }, 400);
+  };
+
+  const toggleHold = (index: number) => {
+    if (turnState.rollsLeft === 3 || !turnState.hasRolled) return;
+
+    const newHeldDice = [...turnState.heldDice];
+    newHeldDice[index] = !newHeldDice[index];
+
+    const updatedState: GameState = {
+      ...gameState,
+      turnState: {
+        ...turnState,
+        heldDice: newHeldDice,
+      },
+    };
+
+    setGameState(updatedState);
+    gameService.saveCurrentGame(updatedState);
+  };
+
+  const handleScoreSelect = (category: keyof (ClassicScores | RainbowScores), value: number) => {
+    if (!turnState.hasRolled) return;
+
+    const updatedPlayers = [...gameState.players];
+    const player = updatedPlayers[gameState.currentPlayerIndex];
+
+    if (gameState.mode === 'classic') {
+      player.classicScores = {
+        ...player.classicScores,
+        [category]: value,
+      };
+    } else {
+      player.rainbowScores = {
+        ...player.rainbowScores,
+        [category]: value,
+      };
+    }
+
+    // Check for bonus Yahtzee
+    if (gameState.mode === 'classic' && category === 'yahtzee' && value === 50 && player.classicScores.yahtzee === 50) {
+      player.classicScores.bonusYahtzees += 1;
+      toast({
+        title: "Bonus Yahtzee! 🎉",
+        description: "+100 points!",
+      });
+    }
+
+    // Reset turn state for next player or next turn
+    const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+    
+    const updatedState: GameState = {
+      ...gameState,
+      players: updatedPlayers,
+      currentPlayerIndex: nextPlayerIndex,
+      turnState: {
+        rollsLeft: 3,
+        heldDice: [false, false, false, false, false],
+        currentDice: [0, 0, 0, 0, 0],
+        currentColors: gameState.mode === 'rainbow'
+          ? ['red', 'blue', 'green', 'yellow', 'purple']
+          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        hasRolled: false,
+      },
+    };
+
+    setGameState(updatedState);
+    gameService.saveCurrentGame(updatedState);
+
+    // Check if game is complete
+    const isGameComplete = checkGameComplete(updatedState);
+    if (isGameComplete) {
+      setTimeout(() => setShowFinishDialog(true), 500);
+    }
+  };
+
+  const checkGameComplete = (state: GameState): boolean => {
+    return state.players.every(player => {
+      if (state.mode === 'classic') {
+        const scores = player.classicScores;
+        return scores.aces !== null && scores.twos !== null && scores.threes !== null &&
+               scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
+               scores.threeOfKind !== null && scores.fourOfKind !== null &&
+               scores.fullHouse !== null && scores.smallStraight !== null &&
+               scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null;
+      } else {
+        const scores = player.rainbowScores;
+        return scores.aces !== null && scores.twos !== null && scores.threes !== null &&
+               scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
+               scores.threeOfKind !== null && scores.fourOfKind !== null &&
+               scores.fullHouse !== null && scores.smallStraight !== null &&
+               scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null &&
+               scores.allRed !== null && scores.allBlue !== null && scores.allGreen !== null &&
+               scores.allYellow !== null && scores.allPurple !== null &&
+               scores.threeColorMix !== null && scores.fourColorMix !== null &&
+               scores.rainbowBonus !== null;
+      }
+    });
+  };
+
+  const nextPlayer = () => {
+    if (turnState.hasRolled && turnState.rollsLeft < 3) {
+      toast({
+        title: "Finish your turn",
+        description: "Please select a category to score",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const nextIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+    const updatedState: GameState = {
+      ...gameState,
+      currentPlayerIndex: nextIndex,
+      turnState: {
+        rollsLeft: 3,
+        heldDice: [false, false, false, false, false],
+        currentDice: [0, 0, 0, 0, 0],
+        currentColors: gameState.mode === 'rainbow'
+          ? ['red', 'blue', 'green', 'yellow', 'purple']
+          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        hasRolled: false,
+      },
+    };
+    setGameState(updatedState);
+    gameService.saveCurrentGame(updatedState);
+  };
+
+  const prevPlayer = () => {
+    if (turnState.hasRolled && turnState.rollsLeft < 3) {
+      toast({
+        title: "Finish your turn",
+        description: "Please select a category to score",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const prevIndex = gameState.currentPlayerIndex === 0
+      ? gameState.players.length - 1
+      : gameState.currentPlayerIndex - 1;
+    const updatedState: GameState = {
+      ...gameState,
+      currentPlayerIndex: prevIndex,
+      turnState: {
+        rollsLeft: 3,
+        heldDice: [false, false, false, false, false],
+        currentDice: [0, 0, 0, 0, 0],
+        currentColors: gameState.mode === 'rainbow'
+          ? ['red', 'blue', 'green', 'yellow', 'purple']
+          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        hasRolled: false,
+      },
+    };
+    setGameState(updatedState);
+    gameService.saveCurrentGame(updatedState);
+  };
+
+  const finishGame = () => {
+    gameState.players.forEach(player => {
+      const score = gameState.mode === 'classic'
+        ? classicScoringEngine.calculateGrandTotal(player.classicScores)
+        : rainbowScoringEngine.calculateTotal(player.rainbowScores);
+
+      const highScore: HighScore = {
+        id: `score-${Date.now()}-${player.id}`,
+        mode: gameState.mode,
+        score,
+        playerNames: [player.name],
+        date: new Date().toISOString(),
+      };
+
+      gameService.saveHighScore(highScore);
+    });
+
+    gameService.clearCurrentGame();
+    toast({
+      title: "Game Finished! 🎉",
+      description: "Scores saved to High Scores",
+    });
+    navigate('/high-scores');
+  };
+
+  const canScore = turnState.hasRolled;
+
+  return (
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
+      <div className="max-w-3xl mx-auto p-4 pt-6">
+        {/* Header */}
+        <Card className="p-4 mb-6 bg-gray-900 text-white border-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">
+                {gameState.mode === 'classic' ? 'Classic Yahtzee' : 'Rainbow Mode'}
+              </h1>
+              <p className="text-sm text-gray-400">
+                {gameState.players.length} Player{gameState.players.length > 1 ? 's' : ''}
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowFinishDialog(true)}
+              variant="secondary"
+              size="sm"
+              className="bg-white text-gray-900 hover:bg-gray-100"
+            >
+              <Trophy className="w-4 h-4 mr-2" />
+              Finish
+            </Button>
+          </div>
+        </Card>
+
+        {/* Player Navigation */}
+        {gameState.players.length > 1 && (
+          <div className="flex items-center justify-between mb-6">
+            <Button onClick={prevPlayer} variant="outline" size="icon" className="border-gray-300">
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+            <div className="text-center">
+              <p className="text-sm text-gray-600 font-medium">Current Player</p>
+              <p className="text-lg font-bold text-gray-900">
+                {currentPlayer.name}
+              </p>
+            </div>
+            <Button onClick={nextPlayer} variant="outline" size="icon" className="border-gray-300">
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
+
+        {/* Dice Roller */}
+        <div className="mb-6">
+          <DiceRoller
+            mode={gameState.mode}
+            dice={turnState.currentDice}
+            colors={turnState.currentColors}
+            heldDice={turnState.heldDice}
+            rollsLeft={turnState.rollsLeft}
+            isRolling={isRolling}
+            hasRolled={turnState.hasRolled}
+            onRoll={rollDice}
+            onToggleHold={toggleHold}
+          />
+        </div>
+
+        {/* Scorecard */}
+        {gameState.mode === 'classic' ? (
+          <InteractiveClassicScorecard
+            scores={currentPlayer.classicScores}
+            currentDice={turnState.currentDice}
+            canScore={canScore}
+            onScoreSelect={handleScoreSelect}
+            playerName={currentPlayer.name}
+          />
+        ) : (
+          <InteractiveRainbowScorecard
+            scores={currentPlayer.rainbowScores}
+            currentDice={turnState.currentDice}
+            currentColors={turnState.currentColors.filter((c): c is DiceColor => c !== 'neutral')}
+            canScore={canScore}
+            onScoreSelect={handleScoreSelect}
+            playerName={currentPlayer.name}
+          />
+        )}
+      </div>
+
+      <Navigation />
+
+      {/* Finish Game Dialog */}
+      <AlertDialog open={showFinishDialog} onOpenChange={setShowFinishDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Finish Game?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will save all player scores to the High Scores page and end the current game.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={finishGame}>Finish & Save</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default Game;
