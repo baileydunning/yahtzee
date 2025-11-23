@@ -13,7 +13,7 @@ import { Dices, Plus, Trash2 } from 'lucide-react';
 const Index = () => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<GameMode>('classic');
-  const [playerNames, setPlayerNames] = useState<string[]>(['Player 1']);
+  const [playerNames, setPlayerNames] = useState<string[]>(['']);
   const [hasExistingGame, setHasExistingGame] = useState(false);
 
   useEffect(() => {
@@ -161,7 +161,7 @@ const Index = () => {
                     <RadioGroupItem value="rainbow" id="rainbow" />
                     <Label htmlFor="rainbow" className="flex-1 cursor-pointer">
                       <div className="font-medium">Rainbow Mode</div>
-                      <div className="text-sm text-muted-foreground">5-color dice (Red, Blue, Green, Yellow, Purple)</div>
+                      <div className="text-sm text-muted-foreground">5-color dice (Red, Yellow, Green, Blue, Purple)</div>
                     </Label>
                   </div>
                 </RadioGroup>
@@ -179,14 +179,14 @@ const Index = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  {playerNames.map((name, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        value={name}
-                        onChange={(e) => updatePlayerName(index, e.target.value)}
-                        placeholder={`Player ${index + 1}`}
-                        className="text-base h-12"
-                      />
+                  {playerNames.map((name, index) => (  
+                    <div key={index} className="flex gap-2">  
+                      <Input  
+                        value={name}  
+                        onChange={(e) => updatePlayerName(index, e.target.value)}  
+                        placeholder="Enter name"  
+                        className="text-base h-12"  
+                      />  
                       {playerNames.length > 1 && (
                         <Button
                           onClick={() => removePlayer(index)}
