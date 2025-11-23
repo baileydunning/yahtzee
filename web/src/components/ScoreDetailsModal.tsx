@@ -77,7 +77,7 @@ export const ScoreDetailsModal = ({ score, open, onOpenChange }: ScoreDetailsMod
           const colorBonus = rainbowScoringEngine.calculateColorBonus(scores);
           return (
             <div>
-              <h3 className="font-semibold text-sm text-muted-foreground mb-2">🌈 Color Bonuses</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground mb-2">Color Bonuses</h3>
               <div className="space-y-1">
                 <ScoreRow label="All Red" value={scores.allRed} />
                 <ScoreRow label="All Blue" value={scores.allBlue} />

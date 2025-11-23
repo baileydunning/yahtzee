@@ -1,0 +1,258 @@
+import { AchievementProgress, AllTimeStats } from '@/types/achievements';
+import { HighScore } from '@/types/game';
+
+const ACHIEVEMENT_PROGRESS_KEY = 'yahtzee_achievement_progress';
+const ALL_TIME_STATS_KEY = 'yahtzee_all_time_stats';
+const HIGH_SCORES_KEY = 'yahtzee_high_scores';
+
+const DEFAULT_ALL_TIME_STATS: AllTimeStats = {
+  classicGamesCompleted: 0,
+  rainbowGamesCompleted: 0,
+  classicHighScores: [],
+  rainbowHighScores: [],
+  totalYahtzeesInClassic: 0,
+  upperBonusesEarned: 0,
+  threeOfKind20Plus: 0,
+  fourOfKind30Plus: 0,
+  straightShooterGames: 0,
+  classic275PlusGames: 0,
+  rainbow400PlusGames: 0,
+  totalRainbowPoints: 0,
+  bothModesPlayed: false,
+
+  // Derived / added stats
+  totalGames: 0,
+  bestClassicScore: 0,
+  bestRainbowScore: 0,
+  classicAverage: 0,
+  rainbowAverage: 0,
+  lastGameDate: null,
+  lastUpdated: null,
+
+  // For bonus-Yahtzee style achievements
+  classicBonusYahtzees: 0,
+  rainbowBonusYahtzees: 0,
+};
+
+export const achievementService = {
+  // -----------------------------
+  // Achievement progress
+  // -----------------------------
+  getAchievementProgress(): Record<string, AchievementProgress> {
+    const data = localStorage.getItem(ACHIEVEMENT_PROGRESS_KEY);
+    if (!data) return {};
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.warn('Failed to parse achievement progress, resetting.', e);
+      return {};
+    }
+  },
+
+  saveAchievementProgress(progress: Record<string, AchievementProgress>): void {
+    localStorage.setItem(ACHIEVEMENT_PROGRESS_KEY, JSON.stringify(progress));
+  },
+
+  unlockAchievement(achievementId: string): void {
+    const progress = this.getAchievementProgress();
+    progress[achievementId] = {
+      id: achievementId,
+      unlocked: true,
+      unlockedAt: new Date().toISOString(),
+      progress: progress[achievementId]?.progress || 0,
+    };
+    this.saveAchievementProgress(progress);
+  },
+
+  updateProgress(achievementId: string, newProgress: number): void {
+    const progress = this.getAchievementProgress();
+    if (!progress[achievementId]) {
+      progress[achievementId] = {
+        id: achievementId,
+        unlocked: false,
+        progress: 0,
+      };
+    }
+    progress[achievementId].progress = newProgress;
+    this.saveAchievementProgress(progress);
+  },
+
+  // -----------------------------
+  // Local high scores (for graphs, etc.)
+  // -----------------------------
+  getLocalHighScores(): HighScore[] {
+    const raw = localStorage.getItem(HIGH_SCORES_KEY);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw) as HighScore[];
+    } catch (e) {
+      console.warn('Failed to parse local high scores, resetting.', e);
+      return [];
+    }
+  },
+
+  saveLocalHighScores(scores: HighScore[]): void {
+    localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
+  },
+
+  // -----------------------------
+  // All-time stats
+  // -----------------------------
+  getAllTimeStats(): AllTimeStats {
+    const raw = localStorage.getItem(ALL_TIME_STATS_KEY);
+    if (!raw) {
+      return { ...DEFAULT_ALL_TIME_STATS };
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as Partial<AllTimeStats>;
+      // merge so new fields always have defaults
+      return {
+        ...DEFAULT_ALL_TIME_STATS,
+        ...parsed,
+      };
+    } catch (e) {
+      console.warn('Failed to parse all-time stats, resetting.', e);
+      return { ...DEFAULT_ALL_TIME_STATS };
+    }
+  },
+
+  saveAllTimeStats(stats: AllTimeStats): void {
+    const withMeta: AllTimeStats = {
+      ...DEFAULT_ALL_TIME_STATS,
+      ...stats,
+      lastUpdated: new Date().toISOString(),
+    };
+    localStorage.setItem(ALL_TIME_STATS_KEY, JSON.stringify(withMeta));
+  },
+
+  // -----------------------------
+  // Update stats after a game completes
+  // -----------------------------
+  updateStatsAfterGame(highScore: HighScore): void {
+    // 1) Append this game to the local high score history
+    const existingScores = this.getLocalHighScores();
+    existingScores.push(highScore);
+    this.saveLocalHighScores(existingScores);
+
+    // 2) Update aggregate stats
+    const stats = this.getAllTimeStats();
+
+    if (highScore.mode === 'classic') {
+      stats.classicGamesCompleted += 1;
+      stats.classicHighScores.push(highScore.score);
+
+      // update best classic score
+      if (highScore.score > stats.bestClassicScore) {
+        stats.bestClassicScore = highScore.score;
+      }
+
+      // calculate average for classic
+      if (stats.classicHighScores.length > 0) {
+        const sum = stats.classicHighScores.reduce((acc, val) => acc + val, 0);
+        stats.classicAverage = Math.round(sum / stats.classicHighScores.length);
+      } else {
+        stats.classicAverage = 0;
+      }
+
+      if (highScore.scorecard) {
+        // Count Yahtzees & bonus Yahtzees
+        if (highScore.scorecard.yahtzee === 50) {
+          const bonus = highScore.scorecard.bonusYahtzees || 0;
+          stats.totalYahtzeesInClassic += 1 + bonus;
+          stats.classicBonusYahtzees += bonus;
+        }
+
+        // Upper bonus
+        const upperTotal =
+          (highScore.scorecard.aces || 0) +
+          (highScore.scorecard.twos || 0) +
+          (highScore.scorecard.threes || 0) +
+          (highScore.scorecard.fours || 0) +
+          (highScore.scorecard.fives || 0) +
+          (highScore.scorecard.sixes || 0);
+
+        if (upperTotal >= 63) {
+          stats.upperBonusesEarned += 1;
+        }
+
+        // 3-of-a-kind 20+
+        if (
+          highScore.scorecard.threeOfKind &&
+          highScore.scorecard.threeOfKind >= 20
+        ) {
+          stats.threeOfKind20Plus += 1;
+        }
+
+        // 4-of-a-Kind 30+
+        if (
+          highScore.scorecard.fourOfKind &&
+          highScore.scorecard.fourOfKind >= 30
+        ) {
+          stats.fourOfKind30Plus += 1;
+        }
+
+        // Both straights
+        if (
+          highScore.scorecard.smallStraight &&
+          highScore.scorecard.smallStraight > 0 &&
+          highScore.scorecard.largeStraight &&
+          highScore.scorecard.largeStraight > 0
+        ) {
+          stats.straightShooterGames += 1;
+        }
+
+        // 275+ games
+        if (highScore.score >= 275) {
+          stats.classic275PlusGames += 1;
+        }
+      }
+    } else if (highScore.mode === 'rainbow') {
+      stats.rainbowGamesCompleted += 1;
+      stats.rainbowHighScores.push(highScore.score);
+      stats.totalRainbowPoints += highScore.score;
+
+      // update best rainbow score
+      if (highScore.score > stats.bestRainbowScore) {
+        stats.bestRainbowScore = highScore.score;
+      }
+
+      // calculate average for rainbow
+      if (stats.rainbowHighScores.length > 0) {
+        const sum = stats.rainbowHighScores.reduce((acc, val) => acc + val, 0);
+        stats.rainbowAverage = Math.round(sum / stats.rainbowHighScores.length);
+      } else {
+        stats.rainbowAverage = 0;
+      }
+
+      if (highScore.score >= 400) {
+        stats.rainbow400PlusGames += 1;
+      }
+
+      if (highScore.scorecard) {
+        const bonus = highScore.scorecard.bonusYahtzees || 0;
+        stats.rainbowBonusYahtzees += bonus;
+      }
+    }
+
+    // Derived fields
+    stats.totalGames =
+      (stats.classicGamesCompleted || 0) +
+      (stats.rainbowGamesCompleted || 0);
+
+    stats.lastGameDate = highScore.date || new Date().toISOString();
+
+    // Check if both modes played
+    if (stats.classicGamesCompleted > 0 && stats.rainbowGamesCompleted > 0) {
+      stats.bothModesPlayed = true;
+    }
+
+    this.saveAllTimeStats(stats);
+  },
+
+  clearAllData(): void {
+    localStorage.removeItem(ACHIEVEMENT_PROGRESS_KEY);
+    localStorage.removeItem(ALL_TIME_STATS_KEY);
+    localStorage.removeItem(HIGH_SCORES_KEY);
+  },
+};
