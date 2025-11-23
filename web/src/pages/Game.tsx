@@ -267,11 +267,18 @@ const Game = () => {
         date: new Date().toISOString(),
       };
 
+      // Save last game score for display on High Scores page
+      localStorage.setItem('yahtzee_last_game_score', JSON.stringify(highScore));
+
       await gameService.saveHighScore(highScore);
     })).then(() => {
       gameService.clearCurrentGame();
       toast({
-        title: "Game Finished! 🎉",
+        title: `Game Finished! 🎉 Score: ${gameState.players.map(player => {
+          return gameState.mode === 'classic'
+            ? classicScoringEngine.calculateGrandTotal(player.classicScores)
+            : rainbowScoringEngine.calculateTotal(player.rainbowScores);
+        }).join(', ')}`,
         description: "Scores saved to High Scores",
       });
       navigate('/high-scores');

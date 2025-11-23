@@ -9,9 +9,17 @@ import { Trophy, Calendar, User } from 'lucide-react';
 const HighScoresPage = () => {
   const [scores, setScores] = useState<HighScore[]>([]);
   const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'all'>('all');
+  const [lastGameScore, setLastGameScore] = useState<HighScore | null>(null);
 
   useEffect(() => {
     loadScores();
+    // Load last game score from localStorage
+    const lastScoreRaw = localStorage.getItem('yahtzee_last_game_score');
+    if (lastScoreRaw) {
+      try {
+        setLastGameScore(JSON.parse(lastScoreRaw));
+      } catch {}
+    }
   }, []);
 
   const loadScores = async () => {
@@ -46,6 +54,15 @@ const HighScoresPage = () => {
             <Trophy className="w-8 h-8 text-primary" />
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">High Scores</h1>
           </div>
+          {lastGameScore && (
+            <Card className="p-3 flex flex-col items-end min-w-[180px] bg-muted">
+              <div className="text-md text-muted-foreground mb-1">Last Game</div>
+              <div className="font-bold text-lg text-foreground">{lastGameScore.score}</div>
+              <div className="text-xs text-muted-foreground">{lastGameScore.mode === 'classic' ? 'Classic' : 'Rainbow'} Mode</div>
+              <div className="text-xs text-muted-foreground">{(lastGameScore.playerNames || []).join(', ')}</div>
+              <div className="text-xs text-muted-foreground">{formatDate(lastGameScore.date)}</div>
+            </Card>
+          )}
         </div>
 
         {scores.length > 0 && (
