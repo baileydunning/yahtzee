@@ -16,11 +16,8 @@ A clean, modern, fully playable Yahtzee web app with Classic and Rainbow (5-colo
 - **Auto-Save**: Game state persists automatically
 
 ### Features
-- High Scores tracking with sort by highest/most recent
-- Settings page with default mode selection
+- High Scores tracking
 - Mobile-first responsive design
-- Clean white background with sage green accents
-- Large touch targets for accessibility
 
 ## How to Play
 
