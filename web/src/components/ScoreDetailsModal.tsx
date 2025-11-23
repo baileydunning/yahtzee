@@ -33,7 +33,13 @@ export const ScoreDetailsModal = ({ score, open, onOpenChange }: ScoreDetailsMod
     const upperTotal = classicScoringEngine.calculateUpperSection(scores);
     const bonus = classicScoringEngine.calculateUpperBonus(upperTotal);
     const lowerTotal = classicScoringEngine.calculateLowerSection(scores);
-    const grandTotal = classicScoringEngine.calculateGrandTotal(scores);
+    let grandTotal: number;
+
+    if (score.mode === 'classic') {
+        grandTotal = classicScoringEngine.calculateGrandTotal(scores);
+    } else if (score.mode === 'rainbow' && 'allRed' in scores) {
+        grandTotal = rainbowScoringEngine.calculateTotal(scores);
+    }  
 
     return (
       <div className="space-y-4">
@@ -79,7 +85,7 @@ export const ScoreDetailsModal = ({ score, open, onOpenChange }: ScoreDetailsMod
           const colorBonus = rainbowScoringEngine.calculateColorBonus(scores);
           return (
             <div>
-              <h3 className="font-semibold text-sm text-muted-foreground mb-2">Color Bonuses</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground mb-2">🌈 Color Bonuses</h3>
               <div className="space-y-1">
                 <ScoreRow label="All Red" value={scores.allRed} />
                 <ScoreRow label="All Blue" value={scores.allBlue} />
