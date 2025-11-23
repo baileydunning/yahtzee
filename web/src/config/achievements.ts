@@ -422,11 +422,11 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'master-modes',
     title: 'Master of Modes',
-    description: 'Earn 8 achievements in both modes',
+    description: 'Earn 3 achievements in both modes',
     category: 'dual',
     modes: ['classic', 'rainbow'],
     icon: '🎓',
-    target: 8,
+    target: 3,
     checkCondition: () => false, // handled by achievementEngine
   },
 ];
