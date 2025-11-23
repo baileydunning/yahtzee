@@ -252,7 +252,7 @@ const Game = () => {
   };
 
   const finishGame = () => {
-    gameState.players.forEach(player => {
+    Promise.all(gameState.players.map(async player => {
       const score = gameState.mode === 'classic'
         ? classicScoringEngine.calculateGrandTotal(player.classicScores)
         : rainbowScoringEngine.calculateTotal(player.rainbowScores);
@@ -265,15 +265,15 @@ const Game = () => {
         date: new Date().toISOString(),
       };
 
-      gameService.saveHighScore(highScore);
+      await gameService.saveHighScore(highScore);
+    })).then(() => {
+      gameService.clearCurrentGame();
+      toast({
+        title: "Game Finished! 🎉",
+        description: "Scores saved to High Scores",
+      });
+      navigate('/high-scores');
     });
-
-    gameService.clearCurrentGame();
-    toast({
-      title: "Game Finished! 🎉",
-      description: "Scores saved to High Scores",
-    });
-    navigate('/high-scores');
   };
 
   const canScore = turnState.hasRolled;

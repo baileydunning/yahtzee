@@ -111,7 +111,7 @@ const HighScoresPage = () => {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
                       <div className="flex items-center gap-1">
                         <User className="w-4 h-4" />
-                        {(score.playerNames || []).join(', ')}
+                        {score.playerName}
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
