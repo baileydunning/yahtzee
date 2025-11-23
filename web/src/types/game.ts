@@ -77,6 +77,7 @@ export interface HighScore {
   mode: GameMode;
   score: number;
   playerNames: string[];
+  scorecard?: ClassicScores | RainbowScores;
   date: string;
   note?: string;
 }

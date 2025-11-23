@@ -5,8 +5,11 @@ import { Navigation } from '@/components/Navigation';
 import { gameService } from '@/services/gameService';
 import { HighScore } from '@/types/game';
 import { Trophy, Calendar, User } from 'lucide-react';
+import { Eye } from 'lucide-react';
+import { ScoreDetailsModal } from '@/components/ScoreDetailsModal';
 
 const HighScoresPage = () => {
+    const [selectedScore, setSelectedScore] = useState<HighScore | null>(null);
   const [scores, setScores] = useState<HighScore[]>([]);
   const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'all'>('all');
   const [lastGameScore, setLastGameScore] = useState<HighScore | null>(null);
@@ -104,39 +107,48 @@ const HighScoresPage = () => {
         ) : (
           <div className="space-y-3">
             {sortedScores.slice(0, 10).map((score, index) => (
-              <Card key={score.id} className="p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                        index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {index + 1}
-                      </div>
-                      <div>
-                        <div className="font-bold text-xl text-foreground">{score.score}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {score.mode === 'classic' ? 'Classic' : 'Rainbow'} Mode
+                  <Card
+                    key={score.id}
+                    className={`p-4 hover:shadow-md transition-shadow ${score.scorecard ? 'cursor-pointer' : ''}`}
+                    onClick={() => score.scorecard && setSelectedScore(score)}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                            index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-bold text-xl text-foreground">{score.score}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {score.mode === 'classic' ? 'Classic' : 'Rainbow'} Mode
+                            </div>
+                          </div>
                         </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
+                          <div className="flex items-center gap-1">
+                            <User className="w-4 h-4" />
+                            {(score.playerNames || []).join(', ')}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {formatDate(score.date)}
+                          </div>
+                        </div>
+                        {score.note && (
+                          <p className="text-sm text-muted-foreground mt-2 ml-11">{score.note}</p>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        {(score.playerNames || []).join(', ')}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {formatDate(score.date)}
-                      </div>
-                    </div>
-                    {score.note && (
-                      <p className="text-sm text-muted-foreground mt-2 ml-11">{score.note}</p>
-                    )}
-                  </div>
-                </div>
-              </Card>
+                  </Card>
             ))}
+            <ScoreDetailsModal
+              score={selectedScore}
+              open={!!selectedScore}
+              onOpenChange={open => setSelectedScore(open ? selectedScore : null)}
+            />
           </div>
         )}
       </div>

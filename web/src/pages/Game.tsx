@@ -259,11 +259,17 @@ const Game = () => {
         ? classicScoringEngine.calculateGrandTotal(player.classicScores)
         : rainbowScoringEngine.calculateTotal(player.rainbowScores);
 
+      let scorecard = {
+        id: player.id,
+        ...gameState.mode === 'classic' ? player.classicScores : player.rainbowScores,
+      }
+
       const highScore: HighScore = {
         id: `score-${Date.now()}-${player.id}`,
         mode: gameState.mode,
         score,
         playerNames: [player.name],
+        scorecard,
         date: new Date().toISOString(),
       };
 
@@ -274,12 +280,11 @@ const Game = () => {
     })).then(() => {
       gameService.clearCurrentGame();
       toast({
-        title: `Game Finished! 🎉 Score: ${gameState.players.map(player => {
+        title: `Score: ${gameState.players.map(player => {
           return gameState.mode === 'classic'
             ? classicScoringEngine.calculateGrandTotal(player.classicScores)
             : rainbowScoringEngine.calculateTotal(player.rainbowScores);
-        }).join(', ')}`,
-        description: "Scores saved to High Scores",
+        }).join(', ')} 🎉 `,
       });
       navigate('/high-scores');
     });

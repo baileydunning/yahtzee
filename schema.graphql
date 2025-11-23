@@ -3,5 +3,33 @@ type HighScores @table(database: "yahtzee") @export(name: "highscores") {
   playerNames: [String]!
   mode: String! @indexed
   score: Int!
+  scorecard: Scorecard
   date: String!
+}
+
+type Scorecard {
+  id: ID! @primaryKey  
+  aces: Int
+  twos: Int
+  threes: Int
+  fours: Int
+  fives: Int
+  sixes: Int
+  upperBonus: Int
+  threeOfKind: Int
+  fourOfKind: Int
+  fullHouse: Int
+  smallStraight: Int
+  largeStraight: Int
+  yahtzee: Int
+  chance: Int
+  allRed: Int
+  allBlue: Int
+  allGreen: Int
+  allYellow: Int
+  allPurple: Int
+  threeColorMix: Int
+  fourColorMix: Int
+  rainbowBonus: Int
+  bonusYahtzees: Int
 }

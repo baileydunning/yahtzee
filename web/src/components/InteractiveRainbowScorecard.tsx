@@ -204,7 +204,7 @@ export const InteractiveRainbowScorecard = ({
       {/* Rainbow Bonus Section */}
       <div className="border-b-4 border-gray-300">
         <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">🌈 Color Bonuses</h3>
+          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Color Bonuses</h3>
         </div>
         
         <div>
