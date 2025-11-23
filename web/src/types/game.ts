@@ -76,7 +76,7 @@ export interface HighScore {
   id: string;
   mode: GameMode;
   score: number;
-  playerNames: string[];
+  playerName: string;
   date: string;
   note?: string;
 }

@@ -261,7 +261,7 @@ const Game = () => {
         id: `score-${Date.now()}-${player.id}`,
         mode: gameState.mode,
         score,
-        playerNames: [player.name],
+        playerName: player.name,
         date: new Date().toISOString(),
       };
 

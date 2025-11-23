@@ -1,4 +1,4 @@
-type HighScores @table(database: "yahtzee") @export(name: "high-scores") {
+type HighScores @table(database: "yahtzee") @export(name: "highscores") {
   id: ID @primaryKey
   playerName: String
   mode: String

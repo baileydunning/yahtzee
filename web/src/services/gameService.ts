@@ -24,9 +24,8 @@ export const gameService = {
   // High Scores (Harper only)
   // -----------------------------
 
-  // NOTE: now async – update callers to `await gameService.getHighScores()`
   async getHighScores(): Promise<HighScore[]> {
-    const res = await fetch('https://yahtzee.bailey.harperfabric.com/HighScores', {
+    const res = await fetch('/HighScores', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -42,13 +41,12 @@ export const gameService = {
     return data;
   },
 
-  // NOTE: also async – update callers accordingly
   async saveHighScore(score: HighScore): Promise<void> {
     const payload: HighScore = {
       ...score,
     };
 
-    const res = await fetch('https://yahtzee.bailey.harperfabric.com/HighScores', {
+    const res = await fetch('/HighScores', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
