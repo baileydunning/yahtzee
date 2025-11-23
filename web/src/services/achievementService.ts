@@ -20,8 +20,6 @@ const DEFAULT_ALL_TIME_STATS: AllTimeStats = {
   rainbow400PlusGames: 0,
   totalRainbowPoints: 0,
   bothModesPlayed: false,
-
-  // Derived / added stats
   totalGames: 0,
   bestClassicScore: 0,
   bestRainbowScore: 0,
@@ -29,8 +27,6 @@ const DEFAULT_ALL_TIME_STATS: AllTimeStats = {
   rainbowAverage: 0,
   lastGameDate: null,
   lastUpdated: null,
-
-  // For bonus-Yahtzee style achievements
   classicBonusYahtzees: 0,
   rainbowBonusYahtzees: 0,
 };

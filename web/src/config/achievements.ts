@@ -61,9 +61,13 @@ export const ACHIEVEMENTS: Achievement[] = [
         icon: '💯',
         target: 5000,
         checkCondition: (ctx) => {
-            const totalClassicPoints = ctx.allTimeStats.classicHighScores.reduce((a, b) => a + b, 0);
-            const totalPoints = totalClassicPoints + ctx.allTimeStats.totalRainbowPoints;
-            return totalPoints;
+            const totalClassicPoints = Array.isArray(ctx.allTimeStats.classicHighScores)
+                ? ctx.allTimeStats.classicHighScores.reduce((a, b) => a + b, 0)
+                : 0;
+            const totalRainbowPoints = Array.isArray(ctx.allTimeStats.rainbowHighScores)
+                ? ctx.allTimeStats.rainbowHighScores.reduce((a, b) => a + b, 0)
+                : 0;
+            return totalClassicPoints + totalRainbowPoints;
         },
     },
     {
@@ -78,7 +82,9 @@ export const ACHIEVEMENTS: Achievement[] = [
             const totalClassicPoints = Array.isArray(ctx.allTimeStats.classicHighScores)
                 ? ctx.allTimeStats.classicHighScores.reduce((a, b) => a + b, 0)
                 : 0;
-            const totalRainbowPoints = ctx.allTimeStats.totalRainbowPoints ?? 0;
+            const totalRainbowPoints = Array.isArray(ctx.allTimeStats.rainbowHighScores)
+                ? ctx.allTimeStats.rainbowHighScores.reduce((a, b) => a + b, 0)
+                : 0;
             return totalClassicPoints + totalRainbowPoints;
         },
     },
@@ -129,7 +135,7 @@ export const ACHIEVEMENTS: Achievement[] = [
             return Object.values(s).filter(v => typeof v === 'number' && v === 0).length === 0;
         },
     },
-    
+
     // ============================================
     // RAINBOW MODE ACHIEVEMENTS (per-game ones check full card)
     // ============================================
