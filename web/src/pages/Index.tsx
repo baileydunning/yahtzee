@@ -23,7 +23,7 @@ const Index = () => {
 
   const addPlayer = () => {
     if (playerNames.length < 4) {
-      setPlayerNames([...playerNames, `Player ${playerNames.length + 1}`]);
+      setPlayerNames([...playerNames, '']);
     }
   };
 
