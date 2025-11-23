@@ -8,7 +8,7 @@ import { Trophy, Calendar, User } from 'lucide-react';
 
 const HighScoresPage = () => {
   const [scores, setScores] = useState<HighScore[]>([]);
-  const [sortByRecent, setSortByRecent] = useState(false);
+  const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'all'>('all');
 
   useEffect(() => {
     loadScores();
@@ -20,12 +20,11 @@ const HighScoresPage = () => {
   };
 
   const getSortedScores = () => {
-    if (sortByRecent) {
-      return [...scores].sort((a, b) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
+    let filtered = scores;
+    if (modeFilter !== 'all') {
+      filtered = scores.filter(s => s.mode === modeFilter);
     }
-    return [...scores].sort((a, b) => b.score - a.score);
+    return [...filtered].sort((a, b) => b.score - a.score);
   };
 
   const formatDate = (dateString: string) => {
@@ -52,28 +51,37 @@ const HighScoresPage = () => {
         {scores.length > 0 && (
           <div className="mb-6 flex gap-2">
             <Button
-              onClick={() => setSortByRecent(false)}
-              variant={!sortByRecent ? "default" : "outline"}
+              onClick={() => setModeFilter('all')}
+              variant={modeFilter === 'all' ? "default" : "outline"}
               size="sm"
             >
-              Highest Score
+              All Modes
             </Button>
             <Button
-              onClick={() => setSortByRecent(true)}
-              variant={sortByRecent ? "default" : "outline"}
+              onClick={() => setModeFilter('classic')}
+              variant={modeFilter === 'classic' ? "default" : "outline"}
               size="sm"
             >
-              Most Recent
+              Classic Only
+            </Button>
+            <Button
+              onClick={() => setModeFilter('rainbow')}
+              variant={modeFilter === 'rainbow' ? "default" : "outline"}
+              size="sm"
+            >
+              Rainbow Only
             </Button>
           </div>
         )}
 
-        {scores.length === 0 ? (
+        {sortedScores.length === 0 ? (
           <Card className="p-12 text-center">
             <Trophy className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-foreground mb-2">No High Scores Yet</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">No High Scores</h2>
             <p className="text-muted-foreground">
-              Finish a game to see your scores here!
+              {modeFilter === 'all'
+                ? 'Finish a game to see your scores here!'
+                : `No scores for ${modeFilter === 'classic' ? 'Classic' : 'Rainbow'} mode yet.`}
             </p>
           </Card>
         ) : (
@@ -84,7 +92,7 @@ const HighScoresPage = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                        index === 0 && !sortByRecent ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                        index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                       }`}>
                         {index + 1}
                       </div>
@@ -95,7 +103,6 @@ const HighScoresPage = () => {
                         </div>
                       </div>
                     </div>
-                    
                     <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
                       <div className="flex items-center gap-1">
                         <User className="w-4 h-4" />
@@ -106,7 +113,6 @@ const HighScoresPage = () => {
                         {formatDate(score.date)}
                       </div>
                     </div>
-                    
                     {score.note && (
                       <p className="text-sm text-muted-foreground mt-2 ml-11">{score.note}</p>
                     )}

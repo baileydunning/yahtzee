@@ -42,7 +42,7 @@ const Index = () => {
   const startNewGame = () => {
     const players: Player[] = playerNames.map((name, index) => ({
       id: `player-${Date.now()}-${index}`,
-      name: name.trim() || `Player ${index + 1}`,
+      name: name.trim(),
       classicScores: {
         aces: null,
         twos: null,
@@ -202,7 +202,12 @@ const Index = () => {
                 </div>
               </div>
 
-              <Button onClick={startNewGame} size="lg" className="w-full text-base h-12">
+              <Button
+                onClick={startNewGame}
+                size="lg"
+                className="w-full text-base h-12"
+                disabled={playerNames.some(name => !name.trim())}
+              >
                 Start Game
               </Button>
             </div>
