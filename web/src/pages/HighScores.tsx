@@ -5,11 +5,10 @@ import { Navigation } from '@/components/Navigation';
 import { gameService } from '@/services/gameService';
 import { HighScore } from '@/types/game';
 import { Trophy, Calendar, User } from 'lucide-react';
-import { Eye } from 'lucide-react';
 import { ScoreDetailsModal } from '@/components/ScoreDetailsModal';
 
 const HighScoresPage = () => {
-    const [selectedScore, setSelectedScore] = useState<HighScore | null>(null);
+  const [selectedScore, setSelectedScore] = useState<HighScore | null>(null);
   const [scores, setScores] = useState<HighScore[]>([]);
   const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'all'>('all');
   const [lastGameScore, setLastGameScore] = useState<HighScore | null>(null);
@@ -58,7 +57,10 @@ const HighScoresPage = () => {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">High Scores</h1>
           </div>
           {lastGameScore && (
-            <Card className="p-3 flex flex-col items-end min-w-[180px] bg-muted">
+            <Card
+              className={`p-3 flex flex-col items-end min-w-[180px] bg-muted ${lastGameScore.scorecard ? 'cursor-pointer' : ''}`}
+              onClick={() => lastGameScore.scorecard && setSelectedScore(lastGameScore)}
+            >
               <div className="text-md text-muted-foreground mb-1">Last Game</div>
               <div className="font-bold text-lg text-foreground">{lastGameScore.score}</div>
               <div className="text-xs text-muted-foreground">{lastGameScore.mode === 'classic' ? 'Classic' : 'Rainbow'} Mode</div>
