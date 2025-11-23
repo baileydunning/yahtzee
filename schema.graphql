@@ -1,7 +1,7 @@
 type HighScores @table(database: "yahtzee") @export(name: "highscores") {
-  id: ID @primaryKey
-  playerName: String
-  mode: String
-  score: Int
-  createdAt: String
+  id: ID! @primaryKey
+  playerNames: [String]!
+  mode: String!
+  score: Int!
+  date: String!
 }

@@ -5,22 +5,10 @@ import { Navigation } from '@/components/Navigation';
 import { gameService } from '@/services/gameService';
 import { HighScore } from '@/types/game';
 import { Trophy, Calendar, User } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 
 const HighScoresPage = () => {
   const [scores, setScores] = useState<HighScore[]>([]);
   const [sortByRecent, setSortByRecent] = useState(false);
-  const [showClearDialog, setShowClearDialog] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     loadScores();
@@ -90,7 +78,7 @@ const HighScoresPage = () => {
           </Card>
         ) : (
           <div className="space-y-3">
-            {sortedScores.map((score, index) => (
+            {sortedScores.slice(0, 10).map((score, index) => (
               <Card key={score.id} className="p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -111,7 +99,7 @@ const HighScoresPage = () => {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
                       <div className="flex items-center gap-1">
                         <User className="w-4 h-4" />
-                        {score.playerName}
+                        {(score.playerNames || []).join(', ')}
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
