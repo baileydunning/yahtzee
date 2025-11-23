@@ -25,7 +25,6 @@ export const ScoreDetailsModal = ({ score, open, onOpenChange }: ScoreDetailsMod
     });
   };
 
-  // Render Classic Mode scorecard
   const renderScorecard = () => {
     if (!score.scorecard) return null;
     
@@ -33,13 +32,6 @@ export const ScoreDetailsModal = ({ score, open, onOpenChange }: ScoreDetailsMod
     const upperTotal = classicScoringEngine.calculateUpperSection(scores);
     const bonus = classicScoringEngine.calculateUpperBonus(upperTotal);
     const lowerTotal = classicScoringEngine.calculateLowerSection(scores);
-    let grandTotal: number;
-
-    if (score.mode === 'classic') {
-        grandTotal = classicScoringEngine.calculateGrandTotal(scores);
-    } else if (score.mode === 'rainbow' && 'allRed' in scores) {
-        grandTotal = rainbowScoringEngine.calculateTotal(scores);
-    }  
 
     return (
       <div className="space-y-4">
@@ -105,7 +97,7 @@ export const ScoreDetailsModal = ({ score, open, onOpenChange }: ScoreDetailsMod
 
         {/* Grand Total */}
         <div className="border-t pt-2">
-          <ScoreRow label="Grand Total" value={grandTotal} highlight />
+          <ScoreRow label="Grand Total" value={score.score} highlight />
         </div>
       </div>
     );
