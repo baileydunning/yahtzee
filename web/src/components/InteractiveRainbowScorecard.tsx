@@ -53,42 +53,83 @@ export const InteractiveRainbowScorecard = ({
     const actualScore = scores[category];
     const canSelect = !isUsed && canScore;
 
+    if (canSelect && potentialScore !== null) {
+      return (
+        <button
+          type="button"
+          className={cn(
+            'w-full grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center py-3 px-4 border-b border-border last:border-0 transition-all duration-150',
+            potentialScore > 0 && 'hover:bg-gray-100 cursor-pointer',
+            potentialScore === 0 && 'hover:bg-gray-50 cursor-pointer opacity-60'
+          )}
+          onClick={() => onScoreSelect(category, potentialScore)}
+          aria-label={`Score ${label} (${potentialScore})`}
+        >
+          {/* Category Name */}
+          <span className="text-left text-sm md:text-base font-medium text-foreground flex items-center gap-2">
+            {isUsed && <Check className="w-4 h-4 text-gray-700" />}
+            {color && <span className={`w-3 h-3 rounded-full bg-dice-${color} border border-gray-300`}></span>}
+            {label}
+          </span>
+          {/* Preview Score */}
+          <span className={cn(
+            'text-sm md:text-base font-semibold text-right min-w-[3rem]',
+            potentialScore > 0 ? 'text-gray-900' : 'text-gray-400'
+          )}>
+            {potentialScore}
+          </span>
+          {/* Final Score */}
+          <span className={cn(
+            'text-sm md:text-base font-bold text-right min-w-[3rem]',
+            isUsed ? 'text-gray-900' : 'text-gray-300'
+          )}>
+            {isUsed ? actualScore : '—'}
+          </span>
+          {/* Zero Out Button */}
+          {potentialScore === 0 && (
+            <button
+              type="button"
+              onClick={e => {
+                e.stopPropagation();
+                onScoreSelect(category, 0);
+              }}
+              className="ml-2 px-2 py-1 text-xs rounded bg-gray-200 hover:bg-gray-300 text-gray-700 border border-gray-300"
+              aria-label={`Zero out ${label}`}
+            >
+              Zero
+            </button>
+          )}
+        </button>
+      );
+    }
+    // Not selectable: show as static row
     return (
-      <button
-        onClick={() => {
-          if (canSelect && potentialScore !== null) {
-            onScoreSelect(category, potentialScore);
-          }
-        }}
-        disabled={!canSelect}
-        className={cn(
-          'w-full grid grid-cols-[1fr_auto_auto] gap-3 items-center py-3 px-4 border-b border-border last:border-0 transition-all duration-150',
-          canSelect && potentialScore !== null && potentialScore > 0 && 'hover:bg-gray-100 cursor-pointer',
-          canSelect && potentialScore === 0 && 'hover:bg-gray-50 cursor-pointer opacity-60',
-          isUsed && 'bg-gray-50',
-          !canSelect && !isUsed && 'cursor-not-allowed opacity-40'
-        )}
-      >
+      <div className={cn(
+        'w-full grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center py-3 px-4 border-b border-border last:border-0 transition-all duration-150',
+        isUsed && 'bg-gray-50',
+        !canSelect && !isUsed && 'cursor-not-allowed opacity-40'
+      )}>
+        {/* Category Name */}
         <span className="text-left text-sm md:text-base font-medium text-foreground flex items-center gap-2">
           {isUsed && <Check className="w-4 h-4 text-gray-700" />}
           {color && <span className={`w-3 h-3 rounded-full bg-dice-${color} border border-gray-300`}></span>}
           {label}
         </span>
-        
+        {/* Preview Score */}
         <span className={cn(
           'text-sm md:text-base font-semibold text-right min-w-[3rem]',
-          canSelect && potentialScore !== null && potentialScore > 0 ? 'text-gray-900' : 'text-gray-400'
+          'text-gray-400'
         )}>
-          {canSelect && potentialScore !== null ? potentialScore : '—'}
+          {'—'}
         </span>
-        
+        {/* Final Score */}
         <span className={cn(
           'text-sm md:text-base font-bold text-right min-w-[3rem]',
           isUsed ? 'text-gray-900' : 'text-gray-300'
         )}>
           {isUsed ? actualScore : '—'}
         </span>
-      </button>
+      </div>
     );
   };
 

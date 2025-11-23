@@ -111,25 +111,34 @@ const Game = () => {
     const updatedPlayers = [...gameState.players];
     const player = updatedPlayers[gameState.currentPlayerIndex];
 
+    // Check for bonus Yahtzee BEFORE updating the score
+    let isBonusYahtzee = false;
+    if (
+      gameState.mode === 'classic' &&
+      category === 'yahtzee' &&
+      value === 50 &&
+      player.classicScores.yahtzee === 50
+    ) {
+      isBonusYahtzee = true;
+    }
+
     if (gameState.mode === 'classic') {
       player.classicScores = {
         ...player.classicScores,
         [category]: value,
       };
+      if (isBonusYahtzee) {
+        player.classicScores.bonusYahtzees += 1;
+        toast({
+          title: "Bonus Yahtzee! 🎉",
+          description: "+100 points!",
+        });
+      }
     } else {
       player.rainbowScores = {
         ...player.rainbowScores,
         [category]: value,
       };
-    }
-
-    // Check for bonus Yahtzee
-    if (gameState.mode === 'classic' && category === 'yahtzee' && value === 50 && player.classicScores.yahtzee === 50) {
-      player.classicScores.bonusYahtzees += 1;
-      toast({
-        title: "Bonus Yahtzee! 🎉",
-        description: "+100 points!",
-      });
     }
 
     // Reset turn state for next player or next turn

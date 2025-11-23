@@ -39,27 +39,28 @@ export const InteractiveClassicScorecard = ({
     const canSelect = !isUsed && canScore;
 
     return (
-      <button
+      <div className={cn(
+        'w-full grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center py-3 px-4 border-b border-border last:border-0 transition-all duration-150',
+        canSelect && potentialScore !== null && potentialScore > 0 && 'hover:bg-gray-100 cursor-pointer',
+        canSelect && potentialScore === 0 && 'hover:bg-gray-50 cursor-pointer opacity-60',
+        isUsed && 'bg-gray-50',
+        !canSelect && !isUsed && 'cursor-not-allowed opacity-40'
+      )}
         onClick={() => {
           if (canSelect && potentialScore !== null) {
             onScoreSelect(category, potentialScore);
           }
         }}
-        disabled={!canSelect}
-        className={cn(
-          'w-full grid grid-cols-[1fr_auto_auto] gap-3 items-center py-3 px-4 border-b border-border last:border-0 transition-all duration-150',
-          canSelect && potentialScore !== null && potentialScore > 0 && 'hover:bg-gray-100 cursor-pointer',
-          canSelect && potentialScore === 0 && 'hover:bg-gray-50 cursor-pointer opacity-60',
-          isUsed && 'bg-gray-50',
-          !canSelect && !isUsed && 'cursor-not-allowed opacity-40'
-        )}
+        role={canSelect ? 'button' : undefined}
+        tabIndex={canSelect ? 0 : -1}
+        aria-disabled={!canSelect}
+        style={{ outline: 'none' }}
       >
         {/* Category Name */}
         <span className="text-left text-sm md:text-base font-medium text-foreground flex items-center gap-2">
           {isUsed && <Check className="w-4 h-4 text-gray-700" />}
           {label}
         </span>
-        
         {/* Preview Score */}
         <span className={cn(
           'text-sm md:text-base font-semibold text-right min-w-[3rem]',
@@ -67,7 +68,6 @@ export const InteractiveClassicScorecard = ({
         )}>
           {canSelect && potentialScore !== null ? potentialScore : '—'}
         </span>
-        
         {/* Final Score */}
         <span className={cn(
           'text-sm md:text-base font-bold text-right min-w-[3rem]',
@@ -75,7 +75,21 @@ export const InteractiveClassicScorecard = ({
         )}>
           {isUsed ? actualScore : '—'}
         </span>
-      </button>
+        {/* Zero Out Button */}
+        {canSelect && potentialScore === 0 && (
+          <button
+            type="button"
+            onClick={e => {
+              e.stopPropagation();
+              onScoreSelect(category, 0);
+            }}
+            className="ml-2 px-2 py-1 text-xs rounded bg-gray-200 hover:bg-gray-300 text-gray-700 border border-gray-300"
+            aria-label={`Zero out ${label}`}
+          >
+            Zero
+          </button>
+        )}
+      </div>
     );
   };
 
