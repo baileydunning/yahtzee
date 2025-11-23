@@ -6,7 +6,7 @@ import { gameService } from '@/services/gameService';
 import { HighScore } from '@/types/game';
 import { Trophy, Calendar, User } from 'lucide-react';
 import { ScoreDetailsModal } from '@/components/ScoreDetailsModal';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Spinner } from '@/components/ui/spinner';
 
 const HighScoresPage = () => {
   const [selectedScore, setSelectedScore] = useState<HighScore | null>(null);
@@ -75,8 +75,9 @@ const HighScoresPage = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-24">
-            <Skeleton className="w-16 h-16" />
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <Spinner size={64} />
+            <span className="text-muted-foreground text-lg">Loading scores…</span>
           </div>
         ) : (
           <>

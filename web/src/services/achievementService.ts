@@ -11,6 +11,7 @@ const DEFAULT_ALL_TIME_STATS: AllTimeStats = {
   classicHighScores: [],
   rainbowHighScores: [],
   totalYahtzeesInClassic: 0,
+  totalYahtzeesInRainbow: 0,
   upperBonusesEarned: 0,
   threeOfKind20Plus: 0,
   fourOfKind30Plus: 0,
@@ -211,6 +212,12 @@ export const achievementService = {
       stats.rainbowGamesCompleted += 1;
       stats.rainbowHighScores.push(highScore.score);
       stats.totalRainbowPoints += highScore.score;
+
+      if (highScore.scorecard.yahtzee === 50) {
+          const bonus = highScore.scorecard.bonusYahtzees || 0;
+          stats.totalYahtzeesInRainbow += 1 + bonus;
+          stats.rainbowBonusYahtzees += bonus;
+        }
 
       // update best rainbow score
       if (highScore.score > stats.bestRainbowScore) {

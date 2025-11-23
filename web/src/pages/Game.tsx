@@ -292,7 +292,7 @@ const Game = () => {
 
         // Update best score in localStorage allTimeStats
         const statsRaw = localStorage.getItem('yahtzee_all_time_stats');
-        let stats = statsRaw ? JSON.parse(statsRaw) : {};
+        const stats = statsRaw ? JSON.parse(statsRaw) : {};
         if (gameState.mode === 'classic') {
           if (!stats.bestClassicScore || score > stats.bestClassicScore) {
             stats.bestClassicScore = score;

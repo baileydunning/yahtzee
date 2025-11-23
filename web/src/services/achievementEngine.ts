@@ -80,7 +80,7 @@ export const achievementEngine = {
         a => a.category === 'rainbow' && progress[a.id]?.unlocked
       ).length;
 
-    if (classicUnlocked >= 8 && rainbowUnlocked >= 8) {
+    if (classicUnlocked >= 3 && rainbowUnlocked >= 3) {
       achievementService.unlockAchievement('master-modes');
       newlyUnlocked.push(masterAchievement);
     }
