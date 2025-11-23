@@ -1,3 +1,6 @@
-type Metrics @table(database: "metrics") @export(name: "metrics") {
-  id: ID! @primaryKey
+type HighScores @table(database: "yahtzee") @export(name: "high-scores") {
+  id: ID @primaryKey
+  playerName: String
+  score: Int
+  createdAt: String
 }

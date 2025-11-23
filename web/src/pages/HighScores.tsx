@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Navigation } from '@/components/Navigation';
 import { gameService } from '@/services/gameService';
 import { HighScore } from '@/types/game';
-import { Trophy, Trash2, Calendar, User } from 'lucide-react';
+import { Trophy, Calendar, User } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,21 +15,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 
 const HighScoresPage = () => {
   const [scores, setScores] = useState<HighScore[]>([]);
   const [sortByRecent, setSortByRecent] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     loadScores();
   }, []);
 
-  const loadScores = () => {
-    const allScores = gameService.getHighScores();
+  const loadScores = async () => {
+    const allScores = await gameService.getHighScores();
     setScores(allScores);
   };
 
@@ -40,26 +38,6 @@ const HighScoresPage = () => {
       );
     }
     return [...scores].sort((a, b) => b.score - a.score);
-  };
-
-  const handleDelete = (id: string) => {
-    gameService.deleteHighScore(id);
-    loadScores();
-    setDeleteId(null);
-    toast({
-      title: "Score deleted",
-      description: "High score has been removed",
-    });
-  };
-
-  const handleClearAll = () => {
-    gameService.clearHighScores();
-    loadScores();
-    setShowClearDialog(false);
-    toast({
-      title: "All scores cleared",
-      description: "High scores have been reset",
-    });
   };
 
   const formatDate = (dateString: string) => {
@@ -81,16 +59,6 @@ const HighScoresPage = () => {
             <Trophy className="w-8 h-8 text-primary" />
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">High Scores</h1>
           </div>
-          {scores.length > 0 && (
-            <Button 
-              onClick={() => setShowClearDialog(true)}
-              variant="outline"
-              size="sm"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Clear All
-            </Button>
-          )}
         </div>
 
         {scores.length > 0 && (
@@ -143,7 +111,7 @@ const HighScoresPage = () => {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
                       <div className="flex items-center gap-1">
                         <User className="w-4 h-4" />
-                        {score.playerNames.join(', ')}
+                        {(score.playerNames || []).join(', ')}
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
@@ -155,15 +123,6 @@ const HighScoresPage = () => {
                       <p className="text-sm text-muted-foreground mt-2 ml-11">{score.note}</p>
                     )}
                   </div>
-                  
-                  <Button
-                    onClick={() => setDeleteId(score.id)}
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
               </Card>
             ))}
@@ -172,42 +131,6 @@ const HighScoresPage = () => {
       </div>
 
       <Navigation />
-
-      {/* Delete Single Score Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Score?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently remove this score from your history.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Clear All Dialog */}
-      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clear All Scores?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete all high scores. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearAll} className="bg-destructive text-destructive-foreground">
-              Clear All
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

@@ -1,12 +1,11 @@
 import { GameState, HighScore } from '@/types/game';
 
 const CURRENT_GAME_KEY = 'yahtzee_current_game';
-const HIGH_SCORES_KEY = 'yahtzee_high_scores';
-
-// Database-ready service layer - replace localStorage with API calls later
 
 export const gameService = {
-  // Current game management
+  // -----------------------------
+  // Current game (localStorage)
+  // -----------------------------
   getCurrentGame(): GameState | null {
     const data = localStorage.getItem(CURRENT_GAME_KEY);
     return data ? JSON.parse(data) : null;
@@ -21,24 +20,46 @@ export const gameService = {
     localStorage.removeItem(CURRENT_GAME_KEY);
   },
 
-  // High scores management
-  getHighScores(): HighScore[] {
-    const data = localStorage.getItem(HIGH_SCORES_KEY);
-    return data ? JSON.parse(data) : [];
+  // -----------------------------
+  // High Scores (Harper only)
+  // -----------------------------
+
+  // NOTE: now async – update callers to `await gameService.getHighScores()`
+  async getHighScores(): Promise<HighScore[]> {
+    const res = await fetch('https://yahtzee.bailey.harperfabric.com/HighScores', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`Failed to fetch high scores: ${res.status} ${text}`);
+    }
+
+    const data = (await res.json()).body as HighScore[];
+    return data;
   },
 
-  saveHighScore(score: HighScore): void {
-    const scores = this.getHighScores();
-    scores.push(score);
-    localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
-  },
+  // NOTE: also async – update callers accordingly
+  async saveHighScore(score: HighScore): Promise<void> {
+    const payload: HighScore = {
+      ...score,
+    };
 
-  deleteHighScore(id: string): void {
-    const scores = this.getHighScores().filter(s => s.id !== id);
-    localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
-  },
+    const res = await fetch('https://yahtzee.bailey.harperfabric.com/HighScores', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
 
-  clearHighScores(): void {
-    localStorage.removeItem(HIGH_SCORES_KEY);
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`Failed to save high score: ${res.status} ${text}`);
+    }
   },
 };
