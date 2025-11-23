@@ -29,6 +29,7 @@ export interface AchievementContext {
 
     // Historical data from achievementService
     allTimeStats: AllTimeStats;
+    unlockedAchievementIds: string[];
 }
 
 export interface AllTimeStats {

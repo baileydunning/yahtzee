@@ -1,6 +1,7 @@
 import { Navigation } from '@/components/Navigation';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { AchievementProgressBar } from '@/components/AchievementProgressBar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { achievementEngine } from '@/services/achievementEngine';
@@ -25,9 +26,6 @@ const Achievements = () => {
   const renderAchievementCard = (achievement: AchievementWithProgress) => {
     const isUnlocked = achievement.progress.unlocked;
     const hasProgress = achievement.target && achievement.target > 0;
-    const progressValue = hasProgress
-      ? (achievement.progress.progress / achievement.target!) * 100
-      : 0;
 
     return (
       <Card
@@ -60,17 +58,13 @@ const Achievements = () => {
               {achievement.description}
             </p>
 
-            {/* Progress bar for incremental achievements */}
-            {hasProgress && !isUnlocked && (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Progress</span>
-                  <span>
-                    {achievement.progress.progress} / {achievement.target}
-                  </span>
-                </div>
-                <Progress value={progressValue} className="h-2" />
-              </div>
+            {/* Progress bar for all achievements with a target */}
+            {hasProgress && (
+              <AchievementProgressBar
+                progress={achievement.progress.progress}
+                target={achievement.target}
+                label="Progress"
+              />
             )}
 
             {/* Unlock date */}

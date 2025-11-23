@@ -59,10 +59,11 @@ export const ACHIEVEMENTS: Achievement[] = [
         category: 'dual',
         modes: ['classic', 'rainbow'],
         icon: '💯',
+        target: 5000,
         checkCondition: (ctx) => {
             const totalClassicPoints = ctx.allTimeStats.classicHighScores.reduce((a, b) => a + b, 0);
             const totalPoints = totalClassicPoints + ctx.allTimeStats.totalRainbowPoints;
-            return totalPoints >= 5000;
+            return totalPoints;
         },
     },
     {
@@ -72,12 +73,13 @@ export const ACHIEVEMENTS: Achievement[] = [
         category: 'dual',
         modes: ['classic', 'rainbow'],
         icon: '🔢',
+        target: 25000,
         checkCondition: (ctx) => {
             const totalClassicPoints = Array.isArray(ctx.allTimeStats.classicHighScores)
                 ? ctx.allTimeStats.classicHighScores.reduce((a, b) => a + b, 0)
                 : 0;
             const totalRainbowPoints = ctx.allTimeStats.totalRainbowPoints ?? 0;
-            return (totalClassicPoints + totalRainbowPoints) >= 25000;
+            return totalClassicPoints + totalRainbowPoints;
         },
     },
     {
@@ -87,10 +89,11 @@ export const ACHIEVEMENTS: Achievement[] = [
         category: 'dual',
         modes: ['classic', 'rainbow'],
         icon: '🧛‍♂️',
+        target: 20,
         checkCondition: (ctx) => {
             const classicYahtzees = ctx.allTimeStats.totalYahtzeesInClassic ?? 0;
             const rainbowYahtzees = ctx.allTimeStats.totalYahtzeesInRainbow ?? 0;
-            return (classicYahtzees + rainbowYahtzees) >= 20;
+            return classicYahtzees + rainbowYahtzees;
         },
     },
     {
@@ -100,7 +103,8 @@ export const ACHIEVEMENTS: Achievement[] = [
         category: 'dual',
         modes: ['classic', 'rainbow'],
         icon: '🕹️',
-        checkCondition: (ctx) => (ctx.allTimeStats.totalGames ?? 0) >= 50,
+        target: 50,
+        checkCondition: (ctx) => ctx.allTimeStats.totalGames ?? 0,
     },
     {
         id: 'persistence-pays',
@@ -109,19 +113,23 @@ export const ACHIEVEMENTS: Achievement[] = [
         category: 'dual',
         modes: ['classic', 'rainbow'],
         icon: '⏳',
-        checkCondition: (ctx) => (ctx.allTimeStats.totalGames ?? 0) >= 100,
+        target: 100,
+        checkCondition: (ctx) => ctx.allTimeStats.totalGames ?? 0,
     },
     {
-        id: 'master-modes',
-        title: 'Master of Modes',
-        description: 'Earn 3 achievements in both modes',
+        id: 'no-miss',
+        title: 'No Miss',
+        description: 'Finish a game in either mode with zero zeroes on your scorecard',
         category: 'dual',
         modes: ['classic', 'rainbow'],
-        icon: '🎓',
-        target: 3,
-        // check if there are 3 achievements unlocked in both modes
-        checkCondition: () => false, // handled by achievementEngine
+        icon: '🧼',
+        checkCondition: (ctx) => {
+            const s = ctx.classicScores || ctx.rainbowScores;
+            if (!s) return false;
+            return Object.values(s).filter(v => typeof v === 'number' && v === 0).length === 0;
+        },
     },
+    
     // ============================================
     // RAINBOW MODE ACHIEVEMENTS (per-game ones check full card)
     // ============================================
