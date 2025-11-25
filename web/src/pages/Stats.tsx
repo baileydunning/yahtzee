@@ -159,7 +159,7 @@ const Stats = () => {
                 icon={Zap}
                 label="Total Yahtzees"
                 value={allTimeStats.totalYahtzeesInClassic || 0}
-                subtext="Lifetime Yahtzees"
+                subtext="Lifetime Classic Yahtzees"
               />
             </div>
 
@@ -241,9 +241,9 @@ const Stats = () => {
 
               <StatCard
                 icon={Zap}
-                label="Total Rainbow Points"
-                value={allTimeStats.totalRainbowPoints || 0}
-                subtext="Lifetime rainbow points"
+                label="Total Yahtzees"
+                value={allTimeStats.totalYahtzeesInRainbow || 0}
+                subtext="Lifetime rainbow yahtzees"
               />
             </div>
 
@@ -294,8 +294,8 @@ const Stats = () => {
               value={allTimeStats.totalGames}
             />
             <TotalStat
-              label="Both Modes Played"
-              value={allTimeStats.bothModesPlayed ? '✓' : '—'}
+              label="Total Yahtzees"
+              value={allTimeStats.totalYahtzeesInClassic + allTimeStats.totalYahtzeesInRainbow}
             />
             <TotalStat
               label="Last Game"
