@@ -114,21 +114,29 @@ const Game = () => {
     const updatedPlayers = [...gameState.players];
     const player = updatedPlayers[gameState.currentPlayerIndex];
 
-    // Enforce bonus Yahtzee rule: after the first Yahtzee, if a player rolls another Yahtzee, increment bonusYahtzees and do not allow scoring in any box (except Yahtzee if it's not filled)
-    let bonusAwarded = false;
+    // Enforce correct Yahtzee rules:
+    // - First Yahtzee must be scored in Yahtzee box
+    // - If Yahtzee box is zeroed, no further Yahtzee bonuses or Joker scoring allowed
+    // - If Yahtzee box is filled with 50, subsequent Yahtzees give bonus and cannot be scored in any other box
     const isYahtzeeRoll = turnState.currentDice.every(die => die === turnState.currentDice[0]);
     if (isYahtzeeRoll) {
       if (gameState.mode === 'classic') {
-        if (player.classicScores.yahtzee === 50) {
+        if (player.classicScores.yahtzee === 0) {
+          toast({
+            title: 'No more Yahtzee bonuses!',
+            description: 'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
+            variant: 'destructive',
+          });
+          return;
+        } else if (player.classicScores.yahtzee === 50) {
           player.classicScores.bonusYahtzees = (player.classicScores.bonusYahtzees || 0) + 1;
-          bonusAwarded = true;
           toast({
             title: 'Bonus Yahtzee! 🎉',
             description: '+100 points!',
           });
           return; // Do not allow scoring in any other box
-        } else if (category === 'yahtzee' || player.classicScores.yahtzee === 0) {
-          // First Yahtzee, allow scoring in Yahtzee box unless they already zeroed it out
+        } else if (category === 'yahtzee') {
+          // First Yahtzee, allow scoring in Yahtzee box
         } else {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
@@ -139,16 +147,22 @@ const Game = () => {
         }
       }
       if (gameState.mode === 'rainbow') {
-        if (player.rainbowScores.yahtzee === 50) {
+        if (player.rainbowScores.yahtzee === 0) {
+          toast({
+            title: 'No more Yahtzee bonuses!',
+            description: 'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
+            variant: 'destructive',
+          });
+          return;
+        } else if (player.rainbowScores.yahtzee === 50) {
           player.rainbowScores.bonusYahtzees = (player.rainbowScores.bonusYahtzees || 0) + 1;
-          bonusAwarded = true;
           toast({
             title: 'Bonus Yahtzee! 🎉',
             description: '+100 points!',
           });
           return;
-        } else if (category === 'yahtzee' || player.rainbowScores.yahtzee === 0) {
-          // First Yahtzee, allow scoring in Yahtzee box unless they already zeroed it out
+        } else if (category === 'yahtzee') {
+          // First Yahtzee, allow scoring in Yahtzee box
         } else {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
