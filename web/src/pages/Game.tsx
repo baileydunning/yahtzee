@@ -73,6 +73,54 @@ const Game = () => {
         return 'neutral' as const;
       });
 
+      // Check for bonus Yahtzee immediately after rolling
+      const isYahtzeeRoll = newDice.every(die => die === newDice[0]);
+      const updatedPlayers = [...gameState.players];
+      const player = updatedPlayers[gameState.currentPlayerIndex];
+      let bonusYahtzeeAwarded = false;
+      if (isYahtzeeRoll) {
+        if (gameState.mode === 'classic' && player.classicScores.yahtzee === 50) {
+          player.classicScores.bonusYahtzees = (player.classicScores.bonusYahtzees || 0) + 1;
+          bonusYahtzeeAwarded = true;
+        }
+        if (gameState.mode === 'rainbow' && player.rainbowScores.yahtzee === 50) {
+          player.rainbowScores.bonusYahtzees = (player.rainbowScores.bonusYahtzees || 0) + 1;
+          bonusYahtzeeAwarded = true;
+        }
+      }
+
+      if (bonusYahtzeeAwarded) {
+        toast({
+          title: 'Bonus Yahtzee! 🎉',
+          description: '+100 points!',
+        });
+        // Advance to next player automatically
+        const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+        const updatedState: GameState = {
+          ...gameState,
+          players: updatedPlayers,
+          currentPlayerIndex: nextPlayerIndex,
+          turnState: {
+            rollsLeft: 3,
+            heldDice: [false, false, false, false, false],
+            currentDice: [0, 0, 0, 0, 0],
+            currentColors: gameState.mode === 'rainbow'
+              ? ['red', 'blue', 'green', 'yellow', 'purple']
+              : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+            hasRolled: false,
+          },
+        };
+        setGameState(updatedState);
+        gameService.saveCurrentGame(updatedState);
+        setIsRolling(false);
+        // Check if game is complete
+        const isGameComplete = checkGameComplete(updatedState);
+        if (isGameComplete) {
+          setTimeout(() => setShowFinishDialog(true), 500);
+        }
+        return;
+      }
+
       const updatedState: GameState = {
         ...gameState,
         turnState: {
