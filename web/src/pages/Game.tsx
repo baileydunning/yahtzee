@@ -119,6 +119,7 @@ const Game = () => {
     // - If Yahtzee box is zeroed, no further Yahtzee bonuses or Joker scoring allowed
     // - If Yahtzee box is filled with 50, subsequent Yahtzees give bonus and cannot be scored in any other box
     const isYahtzeeRoll = turnState.currentDice.every(die => die === turnState.currentDice[0]);
+    let blockScoring = false;
     if (isYahtzeeRoll) {
       if (gameState.mode === 'classic') {
         if (player.classicScores.yahtzee === 0) {
@@ -127,23 +128,22 @@ const Game = () => {
             description: 'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
             variant: 'destructive',
           });
-          return;
-        } else if (player.classicScores.yahtzee === 50) {
+          blockScoring = true;
+        } else if (player.classicScores.yahtzee === 50 && category !== 'yahtzee') {
+          // Only allow bonus if not trying to score in Yahtzee box again
           player.classicScores.bonusYahtzees = (player.classicScores.bonusYahtzees || 0) + 1;
           toast({
             title: 'Bonus Yahtzee! 🎉',
             description: '+100 points!',
           });
-          return; // Do not allow scoring in any other box
-        } else if (category === 'yahtzee') {
-          // First Yahtzee, allow scoring in Yahtzee box
-        } else {
+          blockScoring = true;
+        } else if (category !== 'yahtzee' && player.classicScores.yahtzee == null) {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
             description: 'Score your first Yahtzee in the Yahtzee box.',
             variant: 'destructive',
           });
-          return;
+          blockScoring = true;
         }
       }
       if (gameState.mode === 'rainbow') {
@@ -153,26 +153,26 @@ const Game = () => {
             description: 'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
             variant: 'destructive',
           });
-          return;
-        } else if (player.rainbowScores.yahtzee === 50) {
+          blockScoring = true;
+        } else if (player.rainbowScores.yahtzee === 50 && category !== 'yahtzee') {
           player.rainbowScores.bonusYahtzees = (player.rainbowScores.bonusYahtzees || 0) + 1;
           toast({
             title: 'Bonus Yahtzee! 🎉',
             description: '+100 points!',
           });
-          return;
-        } else if (category === 'yahtzee') {
-          // First Yahtzee, allow scoring in Yahtzee box
-        } else {
+          blockScoring = true;
+        } else if (category !== 'yahtzee' && player.rainbowScores.yahtzee == null) {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
             description: 'Score your first Yahtzee in the Yahtzee box.',
             variant: 'destructive',
           });
-          return;
+          blockScoring = true;
         }
       }
     }
+
+    if (blockScoring) return;
 
     if (gameState.mode === 'classic') {
       player.classicScores = {
@@ -184,13 +184,6 @@ const Game = () => {
         ...player.rainbowScores,
         [category]: value,
       };
-    }
-
-    if (bonusAwarded) {
-      toast({
-        title: 'Bonus Yahtzee! 🎉',
-        description: '+100 points!',
-      });
     }
 
     // Reset turn state for next player or next turn
@@ -358,15 +351,17 @@ const Game = () => {
 
     // Show achievement unlock toasts
     if (allUnlockedAchievements.length > 0) {
-      allUnlockedAchievements.forEach((achievement, index) => {
+      let idx = 0;
+      for (const achievement of allUnlockedAchievements) {
         setTimeout(() => {
           toast({
             title: undefined,
             description: <AchievementUnlockToast achievement={achievement} />,
             duration: 5000,
           });
-        }, index * 600); // Stagger toasts
-      });
+        }, idx * 600); // Stagger toasts
+        idx++;
+      }
     }
 
     const scoresSummary = gameState.players
@@ -377,12 +372,14 @@ const Game = () => {
       })
       .join(', ');
 
+    let achievementMsg = 'Scores saved to High Scores';
+    if (allUnlockedAchievements.length > 0) {
+      achievementMsg = `${allUnlockedAchievements.length} achievement` + (allUnlockedAchievements.length > 1 ? 's' : '') + ' unlocked!';
+    }
+
     toast({
       title: `Score: ${scoresSummary} 🎉`,
-      description:
-        allUnlockedAchievements.length > 0
-          ? `${allUnlockedAchievements.length} achievement${allUnlockedAchievements.length > 1 ? 's' : ''} unlocked!`
-          : 'Scores saved to High Scores',
+      description: achievementMsg,
     });
 
     navigate('/high-scores');
