@@ -120,6 +120,8 @@ const Game = () => {
     // - If Yahtzee box is filled with 50, subsequent Yahtzees give bonus and cannot be scored in any other box
     const isYahtzeeRoll = turnState.currentDice.every(die => die === turnState.currentDice[0]);
     let blockScoring = false;
+    let bonusYahtzeeTurnEnd = false;
+
     if (isYahtzeeRoll) {
       if (gameState.mode === 'classic') {
         if (player.classicScores.yahtzee === 0) {
@@ -130,13 +132,13 @@ const Game = () => {
           });
           blockScoring = true;
         } else if (player.classicScores.yahtzee === 50 && category !== 'yahtzee') {
-          // Only allow bonus if not trying to score in Yahtzee box again
+          // Bonus Yahtzee: award points and end turn immediately
           player.classicScores.bonusYahtzees = (player.classicScores.bonusYahtzees || 0) + 1;
           toast({
             title: 'Bonus Yahtzee! 🎉',
             description: '+100 points!',
           });
-          blockScoring = true;
+          bonusYahtzeeTurnEnd = true;
         } else if (category !== 'yahtzee' && player.classicScores.yahtzee == null) {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
@@ -160,7 +162,7 @@ const Game = () => {
             title: 'Bonus Yahtzee! 🎉',
             description: '+100 points!',
           });
-          blockScoring = true;
+          bonusYahtzeeTurnEnd = true;
         } else if (category !== 'yahtzee' && player.rainbowScores.yahtzee == null) {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
@@ -173,6 +175,33 @@ const Game = () => {
     }
 
     if (blockScoring) return;
+
+    // If bonus Yahtzee, end turn immediately (do not score in any box)
+    if (bonusYahtzeeTurnEnd) {
+      const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+      const updatedState: GameState = {
+        ...gameState,
+        players: updatedPlayers,
+        currentPlayerIndex: nextPlayerIndex,
+        turnState: {
+          rollsLeft: 3,
+          heldDice: [false, false, false, false, false],
+          currentDice: [0, 0, 0, 0, 0],
+          currentColors: gameState.mode === 'rainbow'
+            ? ['red', 'blue', 'green', 'yellow', 'purple']
+            : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+          hasRolled: false,
+        },
+      };
+      setGameState(updatedState);
+      gameService.saveCurrentGame(updatedState);
+      // Check if game is complete
+      const isGameComplete = checkGameComplete(updatedState);
+      if (isGameComplete) {
+        setTimeout(() => setShowFinishDialog(true), 500);
+      }
+      return;
+    }
 
     if (gameState.mode === 'classic') {
       player.classicScores = {
