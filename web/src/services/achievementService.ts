@@ -14,7 +14,7 @@ const DEFAULT_ALL_TIME_STATS: AllTimeStats = {
   totalYahtzeesInRainbow: 0,
   upperBonusesEarned: 0,
   threeOfKind20Plus: 0,
-  fourOfKind30Plus: 0,
+  fourOfKind25Plus: 0,
   straightShooterGames: 0,
   classic275PlusGames: 0,
   rainbow400PlusGames: 0,
@@ -186,7 +186,7 @@ export const achievementService = {
           highScore.scorecard.fourOfKind &&
           highScore.scorecard.fourOfKind >= 30
         ) {
-          stats.fourOfKind30Plus += 1;
+          stats.fourOfKind25Plus += 1;
         }
 
         // Both straights

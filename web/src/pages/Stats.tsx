@@ -187,7 +187,7 @@ const Stats = () => {
                 />
                 <Item
                   label="4-of-a-Kind 30+ Scores"
-                  value={allTimeStats.fourOfKind30Plus}
+                  value={allTimeStats.fourOfKind25Plus}
                 />
                 <Item
                   label="Both Straights in Game"

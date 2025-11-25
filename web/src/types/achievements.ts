@@ -42,7 +42,7 @@ export interface AllTimeStats {
     totalYahtzeesInRainbow: number;
     upperBonusesEarned: number;
     threeOfKind20Plus: number;
-    fourOfKind30Plus: number;
+    fourOfKind25Plus: number;
     straightShooterGames: number;  // games with both straights in Classic
     classic275PlusGames: number;
     rainbow400PlusGames: number;

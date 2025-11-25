@@ -281,7 +281,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     {
         id: 'colorful-kinds',
         title: 'Colorful Kinds',
-        description: 'Score 25+ in 3-of-a-kind, 30+ in 4-of-a-kind, and 15+ in three rainbow categories',
+        description: 'Score 20+ in 3-of-a-kind, 25+ in 4-of-a-kind, and 15+ in three rainbow categories',
         category: 'rainbow',
         modes: ['rainbow'],
         icon: '👽',
@@ -297,8 +297,8 @@ export const ACHIEVEMENTS: Achievement[] = [
             const high = rainbowCats.filter(v => v !== null && v >= 15).length;
 
             return (
-                (s.threeOfKind ?? 0) >= 25 &&
-                (s.fourOfKind ?? 0) >= 30 &&
+                (s.threeOfKind ?? 0) >= 20 &&
+                (s.fourOfKind ?? 0) >= 25 &&
                 high >= 3
             );
         },
@@ -368,7 +368,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     {
         id: 'big-roller',
         title: 'Big Roller',
-        description: 'Score 26+ in Chance in a finished Classic game',
+        description: 'Score 25+ in Chance in a finished Classic game',
         category: 'classic',
         modes: ['classic'],
         icon: '🎰',
@@ -376,18 +376,18 @@ export const ACHIEVEMENTS: Achievement[] = [
             const s = ctx.classicScores;
             if (!isClassicCardComplete(s)) return false;
 
-            return s.chance !== null && s.chance >= 26;
+            return s.chance !== null && s.chance >= 25;
         },
     },
     {
         id: 'dice-commander',
         title: 'Dice Commander',
-        description: 'Score 30+ in 4-of-a-kind three times',
+        description: 'Score 25+ in 4-of-a-kind three times',
         category: 'classic',
         modes: ['classic'],
         icon: '🎖️',
         target: 3,
-        checkCondition: (ctx) => ctx.allTimeStats.fourOfKind30Plus,
+        checkCondition: (ctx) => ctx.allTimeStats.fourOfKind25Plus,
     },
     {
         id: 'straight-shooter-pro',

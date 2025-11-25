@@ -114,15 +114,17 @@ const Game = () => {
     const updatedPlayers = [...gameState.players];
     const player = updatedPlayers[gameState.currentPlayerIndex];
 
-    // Only award bonus Yahtzee if the Yahtzee category was already filled with 50 before this turn
+    // Award bonus Yahtzee only if a Yahtzee is rolled and the Yahtzee category is already filled with 50 before this turn,
+    // and the player is NOT scoring in the Yahtzee category (i.e., using Joker rule)
     let bonusAwarded = false;
-    if (category === 'yahtzee' && value === 50) {
+    const isYahtzeeRoll = turnState.currentDice.every(die => die === turnState.currentDice[0]);
+    if (isYahtzeeRoll && category !== 'yahtzee') {
       if (gameState.mode === 'classic' && player.classicScores.yahtzee === 50) {
-        player.classicScores.bonusYahtzees += 1;
+        player.classicScores.bonusYahtzees = (player.classicScores.bonusYahtzees || 0) + 1;
         bonusAwarded = true;
       }
       if (gameState.mode === 'rainbow' && player.rainbowScores.yahtzee === 50) {
-        player.rainbowScores.bonusYahtzees += 1;
+        player.rainbowScores.bonusYahtzees = (player.rainbowScores.bonusYahtzees || 0) + 1;
         bonusAwarded = true;
       }
     }
