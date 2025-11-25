@@ -127,8 +127,8 @@ const Game = () => {
             description: '+100 points!',
           });
           return; // Do not allow scoring in any other box
-        } else if (category === 'yahtzee') {
-          // First Yahtzee, allow scoring in Yahtzee box
+        } else if (category === 'yahtzee' || player.classicScores.yahtzee === 0) {
+          // First Yahtzee, allow scoring in Yahtzee box unless they already zeroed it out
         } else {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
@@ -147,8 +147,8 @@ const Game = () => {
             description: '+100 points!',
           });
           return;
-        } else if (category === 'yahtzee') {
-          // First Yahtzee, allow scoring in Yahtzee box
+        } else if (category === 'yahtzee' || player.rainbowScores.yahtzee === 0) {
+          // First Yahtzee, allow scoring in Yahtzee box unless they already zeroed it out
         } else {
           toast({
             title: 'Yahtzee must be scored in Yahtzee box first!',
