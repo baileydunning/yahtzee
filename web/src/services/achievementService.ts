@@ -139,17 +139,23 @@ export const achievementService = {
     const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
     const lastGameDate = stats.lastGameDate ? stats.lastGameDate.slice(0, 10) : null;
 
-    if (lastGameDate) {
+    if (!lastGameDate) {
+      // First game ever, start streak at 1
+      stats.streak = 1;
+    } else {
       const prev = new Date(lastGameDate);
       const curr = new Date(today);
       const diffDays = Math.floor((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays === 1) {
-        stats.streak = (stats.streak || 0) + 1;
+      if (diffDays === 0) {
+        // Played again on the same day, streak stays the same
+        stats.streak = stats.streak || 1;
+      } else if (diffDays === 1) {
+        // Played on consecutive days, increment streak
+        stats.streak = (stats.streak || 1) + 1;
       } else if (diffDays > 1) {
+        // Missed a day, reset streak
         stats.streak = 1;
       }
-    } else {
-      stats.streak = 1;
     }
 
     // Check for perfect game (no zeroes in any scored category)
