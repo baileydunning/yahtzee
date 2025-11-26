@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/spinner';
 const HighScoresPage = () => {
   const [selectedScore, setSelectedScore] = useState<HighScore | null>(null);
   const [scores, setScores] = useState<HighScore[]>([]);
-  const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'all'>('all');
+  const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'all' | 'recent'>('all');
   const [lastGameScore, setLastGameScore] = useState<HighScore | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -32,13 +32,17 @@ const HighScoresPage = () => {
     }
   }, []);
 
-  const getSortedScores = () => {
-    let filtered = scores;
-    if (modeFilter !== 'all') {
-      filtered = scores.filter(s => s.mode === modeFilter);
-    }
-    return [...filtered].sort((a, b) => b.score - a.score);
-  };
+const getSortedScores = () => {
+  if (modeFilter === 'recent') {
+    // Only sort by date descending
+    return [...scores].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
+  let filtered = scores;
+  if (modeFilter !== 'all') {
+    filtered = scores.filter(s => s.mode === modeFilter);
+  }
+  return [...filtered].sort((a, b) => b.score - a.score);
+};
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -103,6 +107,13 @@ const HighScoresPage = () => {
                   size="sm"
                 >
                   Rainbow Only
+                </Button>
+                <Button
+                  onClick={() => setModeFilter('recent')}
+                  variant={modeFilter === 'recent' ? "default" : "outline"}
+                  size="sm"
+                >
+                  Most Recent
                 </Button>
               </div>
             )}
