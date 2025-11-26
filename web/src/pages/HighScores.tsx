@@ -11,8 +11,7 @@ import { Spinner } from '@/components/ui/spinner';
 const HighScoresPage = () => {
   const [selectedScore, setSelectedScore] = useState<HighScore | null>(null);
   const [scores, setScores] = useState<HighScore[]>([]);
-  const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'all'>('all');
-  const [lastGameScore, setLastGameScore] = useState<HighScore | null>(null);
+  const [modeFilter, setModeFilter] = useState<'classic' | 'rainbow' | 'recent'>('recent');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,22 +22,17 @@ const HighScoresPage = () => {
       setLoading(false);
     };
     fetchScores();
-    // Load last game score from localStorage
-    const lastScoreRaw = localStorage.getItem('yahtzee_last_game_score');
-    if (lastScoreRaw) {
-      try {
-        setLastGameScore(JSON.parse(lastScoreRaw));
-      } catch {}
-    }
   }, []);
 
-  const getSortedScores = () => {
-    let filtered = scores;
-    if (modeFilter !== 'all') {
-      filtered = scores.filter(s => s.mode === modeFilter);
-    }
+const getSortedScores = () => {
+  let filtered = scores;
+  if (modeFilter === 'classic' || modeFilter === 'rainbow') {
+    filtered = scores.filter(s => s.mode === modeFilter);
     return [...filtered].sort((a, b) => b.score - a.score);
-  };
+  }
+  
+  return [...scores].sort((a, b) => b.score - a.score);
+};
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -59,19 +53,6 @@ const HighScoresPage = () => {
             <Trophy className="w-8 h-8 text-primary" />
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">High Scores</h1>
           </div>
-          {lastGameScore && (
-            <Card
-              className={`p-3 flex flex-col items-end min-w-[180px] bg-muted ${lastGameScore.scorecard ? 'cursor-pointer' : ''}`}
-              onClick={() => lastGameScore.scorecard && setSelectedScore(lastGameScore)}
-            >
-              <div className="text-md text-muted-foreground mb-1">Last Game</div>
-              <div className="font-bold text-lg text-foreground">{lastGameScore.score}</div>
-              <div className="text-xs text-muted-foreground">{lastGameScore.mode === 'classic' ? 'Classic' : 'Rainbow'} Mode</div>
-              <div className="text-xs text-muted-foreground">{(lastGameScore.playerNames || []).join(', ')}
-              </div>
-              <div className="text-xs text-muted-foreground">{formatDate(lastGameScore.date)}</div>
-            </Card>
-          )}
         </div>
 
         {loading ? (
@@ -84,25 +65,25 @@ const HighScoresPage = () => {
             {scores.length > 0 && (
               <div className="mb-6 flex gap-2">
                 <Button
-                  onClick={() => setModeFilter('all')}
-                  variant={modeFilter === 'all' ? "default" : "outline"}
+                  onClick={() => setModeFilter('rainbow')}
+                  variant={modeFilter === 'rainbow' ? "default" : "outline"}
                   size="sm"
                 >
-                  All Modes
+                  Rainbow
                 </Button>
                 <Button
                   onClick={() => setModeFilter('classic')}
                   variant={modeFilter === 'classic' ? "default" : "outline"}
                   size="sm"
                 >
-                  Classic Only
+                  Classic
                 </Button>
                 <Button
-                  onClick={() => setModeFilter('rainbow')}
-                  variant={modeFilter === 'rainbow' ? "default" : "outline"}
+                  onClick={() => setModeFilter('recent')}
+                  variant={modeFilter === 'recent' ? "default" : "outline"}
                   size="sm"
                 >
-                  Rainbow Only
+                  Recent
                 </Button>
               </div>
             )}
@@ -111,11 +92,6 @@ const HighScoresPage = () => {
               <Card className="p-12 text-center">
                 <Trophy className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-foreground mb-2">No High Scores</h2>
-                <p className="text-muted-foreground">
-                  {modeFilter === 'all'
-                    ? 'Finish a game to see your scores here!'
-                    : `No scores for ${modeFilter === 'classic' ? 'Classic' : 'Rainbow'} mode yet.`}
-                </p>
               </Card>
             ) : (
               <div className="space-y-3">

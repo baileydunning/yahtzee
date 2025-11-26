@@ -1,14 +1,17 @@
 type HighScores @table(database: "yahtzee") @export(name: "highscores") {
   id: ID! @primaryKey
+  userId: ID @indexed
   playerNames: [String]!
   mode: String! @indexed
   score: Int!
   scorecard: Scorecard
   date: String!
+
+  # Relationship back to the owning user
+  user: User @relationship(from: userId)
 }
 
 type Scorecard {
-  id: ID! @primaryKey  
   aces: Int
   twos: Int
   threes: Int
@@ -32,4 +35,73 @@ type Scorecard {
   fourColorMix: Int
   rainbowBonus: Int
   bonusYahtzees: Int
+}
+
+type User @table(database: "yahtzee") @export(name: "users") {
+  id: ID! @primaryKey
+  username: String! @indexed
+  email: String! @indexed
+  passwordHash: String!
+  createdAt: String!
+
+  # Relationships
+  stats: UserStats @relationship(to: userId)
+  achievements: [UserAchievement] @relationship(to: userId)
+  highScores: [HighScores] @relationship(to: userId)
+}
+
+type UserStats @table(database: "yahtzee") @export(name: "user_stats") {
+  id: ID! @primaryKey
+  userId: ID! @indexed
+
+  # Core counters
+  classicGamesCompleted: Int!
+  rainbowGamesCompleted: Int!
+  classicHighScores: [Int]!   # historical scores for averages / graphs
+  rainbowHighScores: [Int]!
+  totalYahtzeesInClassic: Int!
+  totalYahtzeesInRainbow: Int!
+  upperBonusesEarned: Int!
+  threeOfKind20Plus: Int!
+  fourOfKind25Plus: Int!
+  straightShooterGames: Int!
+  classic275PlusGames: Int!
+  rainbow400PlusGames: Int!
+  totalRainbowPoints: Int!
+  bothModesPlayed: Boolean!
+
+  # Derived / summary stats
+  totalGames: Int!
+  bestClassicScore: Int!
+  bestRainbowScore: Int!
+  classicAverage: Int!
+  rainbowAverage: Int!
+  lastGameDate: String
+  lastUpdated: String
+
+  # Bonus Yahtzee tracking
+  classicBonusYahtzees: Int!
+  rainbowBonusYahtzees: Int!
+
+  # Relationship back to user
+  user: User @relationship(from: userId)
+}
+
+type UserAchievement @table(database: "yahtzee") @export(name: "user_achievements") {
+  id: ID! @primaryKey
+  userId: ID! @indexed
+
+  # Matches your Achievement.id from the code
+  achievementId: String! @indexed
+
+  unlocked: Boolean!
+  unlockedAt: String
+  progress: Int!
+
+  # Optional helpers if you ever want to query by category/mode
+  category: String @indexed      # "rainbow" | "classic" | "dual"
+  mode: GameMode @indexed        # if an achievement is tied to a single mode
+
+  # Relationship back to user
+  user: User @relationship(from: userId)
 }

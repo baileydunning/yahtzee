@@ -6,15 +6,19 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card } from '@/components/ui/card';
 import { Navigation } from '@/components/Navigation';
+import { AuthModal } from '@/components/AuthModal';
 import { gameService } from '@/services/gameService';
 import { GameMode, Player, GameState } from '@/types/game';
-import { Dices, Plus, Trash2 } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { Dices, Plus, Trash2, User, LogOut  } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [mode, setMode] = useState<GameMode>('classic');
   const [playerNames, setPlayerNames] = useState<string[]>(['']);
   const [hasExistingGame, setHasExistingGame] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     const currentGame = gameService.getCurrentGame();
@@ -114,6 +118,31 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-8">
       <div className="max-w-2xl mx-auto p-4 pt-8">
+        <div className="absolute top-4 right-4">
+          {user ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={logout}
+              className="gap-2"
+            >
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">{user.name || user.email}</span>
+              <LogOut className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setAuthModalOpen(true)}
+              className="gap-2"
+            >
+              <User className="w-4 h-4" />
+              <span>Login</span>
+            </Button>
+          )}
+        </div>
+
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
             <Dices className="w-10 h-10 text-primary" />
@@ -161,7 +190,7 @@ const Index = () => {
                     <RadioGroupItem value="rainbow" id="rainbow" />
                     <Label htmlFor="rainbow" className="flex-1 cursor-pointer">
                       <div className="font-medium">Rainbow Mode</div>
-                      <div className="text-sm text-muted-foreground">5-color dice (Red, Yellow, Green, Blue, Purple)</div>
+                      <div className="text-sm text-muted-foreground">5-color dice (Red, Blue, Green, Yellow, Purple)</div>
                     </Label>
                   </div>
                 </RadioGroup>
@@ -179,14 +208,14 @@ const Index = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  {playerNames.map((name, index) => (  
-                    <div key={index} className="flex gap-2">  
-                      <Input  
-                        value={name}  
-                        onChange={(e) => updatePlayerName(index, e.target.value)}  
-                        placeholder="Enter name"  
-                        className="text-base h-12"  
-                      />  
+                  {playerNames.map((name, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={name}
+                        onChange={(e) => updatePlayerName(index, e.target.value)}
+                        placeholder={`Player ${index + 1}`}
+                        className="text-base h-12"
+                      />
                       {playerNames.length > 1 && (
                         <Button
                           onClick={() => removePlayer(index)}
@@ -202,12 +231,7 @@ const Index = () => {
                 </div>
               </div>
 
-              <Button
-                onClick={startNewGame}
-                size="lg"
-                className="w-full text-base h-12"
-                disabled={playerNames.some(name => !name.trim())}
-              >
+              <Button onClick={startNewGame} size="lg" className="w-full text-base h-12">
                 Start Game
               </Button>
             </div>
@@ -216,6 +240,7 @@ const Index = () => {
       </div>
       
       <Navigation />
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 };
