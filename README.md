@@ -1,6 +1,8 @@
 # Yahtzee 
 
-A clean, modern, fully playable Yahtzee web app with Classic and Rainbow (5-color) modes. Built with React, TypeScript, and Tailwind CSS.
+A Yahtzee web app built to explore React, TypeScript, Tailwind CSS, and HarperDB Fabric. Features Classic and Rainbow modes, persistent stats, achievements and high scores stored in Harper. Designed to run smoothly on both mobile and desktop.
+
+**Live Demo:** https://yahtzee.bailey.harperfabric.com/
 
 ## Features
 
@@ -8,16 +10,40 @@ A clean, modern, fully playable Yahtzee web app with Classic and Rainbow (5-colo
 - **Classic Yahtzee**: Traditional numbered dice with full scorecard (Aces-Sixes, 3/4 of a Kind, Full House, Straights, Yahtzee, Chance)
 - **Rainbow Mode**: 5-color dice (Red, Blue, Green, Yellow, Purple) with color-based scoring categories
 
-### Gameplay
-- **Dice Rolling**: Animated dice rolls with hold/unhold functionality
-- **Turn Management**: Up to 3 rolls per turn with visual roll counter
-- **Smart Scoring**: Only valid scoring categories are clickable
-- **Multi-Player Support**: Add up to 4 players per game
-- **Auto-Save**: Game state persists automatically
+## Features
 
-### Features
-- High Scores tracking
-- Mobile-first responsive design
+### Game Modes
+- Classic Yahtzee with full traditional scorecard
+- Rainbow Mode with 5-color dice and unique color-based scoring categories
+- Supports 1–4 players per game
+
+### Gameplay
+- Animated dice rolls with hold/unhold functionality
+- Up to 3 rolls per turn with a visual roll counter
+- Valid scoring categories are automatically highlighted
+- Automatic turn advancement
+- Auto-save for full game state persistence
+
+### Progression and Stats
+- High scores tracked for both modes (stored in Harper)
+- Persistent local statistics
+- Per-game scorecard details
+
+### Achievements
+- Unlockable achievements for skill, streaks, and milestones
+- Progress bars for multi-step achievements
+- Dual-mode achievements (Classic & Rainbow)
+- Achievement toasts and progress tracking
+
+## Tech Stack
+
+| Layer            | Tools                                      |
+|------------------|--------------------------------------------|
+| Frontend         | React, TypeScript, Vite, Tailwind CSS      |
+| State Management | Custom React hooks, LocalStorage persistence |
+| Backend          | Harper for high scores         |
+| Hosting          | Harper Fabric                            |
+| Build/Deploy     | GitHub → Fabric deployment                 |
 
 ## How to Play
 
@@ -45,6 +71,4 @@ A clean, modern, fully playable Yahtzee web app with Classic and Rainbow (5-colo
 - Single Color (All Red, Blue, Green, Yellow, Purple): 50 points each
 - 3-Color Mix: 20 points
 - 4-Color Mix: 30 points
-- Rainbow (all 5 different colors): 40 points
-- Color Yahtzee: 50 points
-- Bonus Rainbows: +100 points each
+- Rainbow (all 5 different colors): 50 points
