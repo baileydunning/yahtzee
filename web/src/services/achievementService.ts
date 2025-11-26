@@ -181,10 +181,10 @@ export const achievementService = {
           stats.threeOfKind20Plus += 1;
         }
 
-        // 4-of-a-Kind 30+
+        // 4-of-a-Kind 25+
         if (
           highScore.scorecard.fourOfKind &&
-          highScore.scorecard.fourOfKind >= 30
+          highScore.scorecard.fourOfKind >= 25
         ) {
           stats.fourOfKind25Plus += 1;
         }
