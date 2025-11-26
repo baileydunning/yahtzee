@@ -1,6 +1,6 @@
 # Yahtzee 
 
-A Yahtzee web app built to explore React, TypeScript, Tailwind CSS, and HarperDB Fabric. Features Classic and Rainbow modes, persistent stats, achievements and high scores stored in Harper. Designed to run smoothly on both mobile and desktop.
+A Yahtzee web app built to explore React, TypeScript, Tailwind CSS, and Harper Fabric. Features Classic and Rainbow modes, persistent stats, achievements and high scores stored in Harper. Designed to run smoothly on both mobile and desktop.
 
 **Live Demo:** https://yahtzee.bailey.harperfabric.com/
 
