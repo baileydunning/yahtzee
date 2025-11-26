@@ -186,7 +186,7 @@ const Stats = () => {
                   value={allTimeStats.threeOfKind20Plus}
                 />
                 <Item
-                  label="4-of-a-Kind 30+ Scores"
+                  label="4-of-a-Kind 25+ Scores"
                   value={allTimeStats.fourOfKind25Plus}
                 />
                 <Item
