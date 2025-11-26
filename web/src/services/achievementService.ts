@@ -29,6 +29,8 @@ const DEFAULT_ALL_TIME_STATS: AllTimeStats = {
   lastUpdated: null,
   classicBonusYahtzees: 0,
   rainbowBonusYahtzees: 0,
+  streak: 0,
+  perfectGamesCompleted: 0,
 };
 
 export const achievementService = {
@@ -134,6 +136,35 @@ export const achievementService = {
 
     // 2) Update aggregate stats
     const stats = this.getAllTimeStats();
+    const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    const lastGameDate = stats.lastGameDate ? stats.lastGameDate.slice(0, 10) : null;
+
+    if (lastGameDate) {
+      const prev = new Date(lastGameDate);
+      const curr = new Date(today);
+      const diffDays = Math.floor((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) {
+        stats.streak = (stats.streak || 0) + 1;
+      } else if (diffDays > 1) {
+        stats.streak = 1;
+      }
+    } else {
+      stats.streak = 1;
+    }
+
+    // Check for perfect game (no zeroes in any scored category)
+        let isPerfectGame = false;
+        if (highScore.scorecard) {
+          // Exclude bonusYahtzees from check
+          const nonBonusValues = Object.entries(highScore.scorecard)
+            .filter(([k]) => k !== 'bonusYahtzees')
+            .map(([_, v]) => v)
+            .filter(v => typeof v === 'number');
+          isPerfectGame = nonBonusValues.every(v => v !== 0);
+          if (isPerfectGame) {
+            stats.perfectGamesCompleted = (stats.perfectGamesCompleted || 0) + 1;
+          }
+        }
 
     if (highScore.mode === 'classic') {
       stats.classicGamesCompleted += 1;
@@ -210,10 +241,10 @@ export const achievementService = {
       stats.totalRainbowPoints += highScore.score;
 
       if (highScore.scorecard.yahtzee === 50) {
-          const bonus = highScore.scorecard.bonusYahtzees || 0;
-          stats.totalYahtzeesInRainbow += 1 + bonus;
-          stats.rainbowBonusYahtzees += bonus;
-        }
+        const bonus = highScore.scorecard.bonusYahtzees || 0;
+        stats.totalYahtzeesInRainbow += 1 + bonus;
+        stats.rainbowBonusYahtzees += bonus;
+      }
 
       // update best rainbow score
       if (highScore.score > stats.bestRainbowScore) {

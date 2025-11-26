@@ -48,6 +48,8 @@ export interface AllTimeStats {
     rainbow400PlusGames: number;
     totalRainbowPoints: number;
     bothModesPlayed: boolean;
+    perfectGamesCompleted: number;
+    streak: number;
 
     // Derived / summary stats
     totalGames: number;

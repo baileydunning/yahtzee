@@ -288,7 +288,7 @@ const Stats = () => {
             Overall Statistics
           </h3>
 
-          <div className="grid grid-cols-3 gap-4 mb-2">
+          <div className="grid grid-cols-4 gap-4 mb-2">
             <TotalStat
               label="Total Games"
               value={allTimeStats.totalGames}
@@ -296,6 +296,10 @@ const Stats = () => {
             <TotalStat
               label="Total Yahtzees"
               value={allTimeStats.totalYahtzeesInClassic + allTimeStats.totalYahtzeesInRainbow}
+            />
+            <TotalStat
+              label="Streak"
+              value={allTimeStats.streak}
             />
             <TotalStat
               label="Last Game"

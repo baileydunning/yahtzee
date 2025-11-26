@@ -103,6 +103,20 @@ export const ACHIEVEMENTS: Achievement[] = [
         },
     },
     {
+        id: 'yahtzee-legend',
+        title: 'Yahtzee Legend',
+        description: 'Earn 50 Yahtzees across all games',
+        category: 'dual',
+        modes: ['classic', 'rainbow'],
+        icon: '🧙‍♂️',
+        target: 50,
+        checkCondition: (ctx) => {
+            const classicYahtzees = ctx.allTimeStats.totalYahtzeesInClassic ?? 0;
+            const rainbowYahtzees = ctx.allTimeStats.totalYahtzeesInRainbow ?? 0;
+            return classicYahtzees + rainbowYahtzees;
+        },
+    },
+    {
         id: 'game-grinder',
         title: 'Game Grinder',
         description: 'Play 50 games in total',
@@ -135,6 +149,208 @@ export const ACHIEVEMENTS: Achievement[] = [
             return Object.values(s).filter(v => typeof v === 'number' && v === 0).length === 0;
         },
     },
+    {
+        id: 'bonus-binge',
+        title: 'Bonus Binge',
+        description: 'Earn 10 Bonus Yahtzees across all games',
+        category: 'dual',
+        modes: ['classic', 'rainbow'],
+        icon: '🍻',
+        target: 10,
+        checkCondition: (ctx) => {
+            const classicBonus = ctx.allTimeStats.classicBonusYahtzees ?? 0;
+            const rainbowBonus = ctx.allTimeStats.rainbowBonusYahtzees ?? 0;
+            return classicBonus + rainbowBonus;
+        },
+    },
+    {
+    id: 'comeback-artist',
+    title: 'Comeback Artist',
+    description: 'Score 300+ in a game despite having at least three zeroes',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🎭',
+    checkCondition: (ctx) => {
+        const s = ctx.classicScores || ctx.rainbowScores;
+        if (!s) return false;
+
+        let score = 0;
+        if (ctx.mode === 'classic') {
+            score = ctx.classicScores
+                ? (ctx.classicScores.aces ?? 0) +
+                  (ctx.classicScores.twos ?? 0) +
+                  (ctx.classicScores.threes ?? 0) +
+                  (ctx.classicScores.fours ?? 0) +
+                  (ctx.classicScores.fives ?? 0) +
+                  (ctx.classicScores.sixes ?? 0) +
+                  (ctx.classicScores.threeOfKind ?? 0) +
+                  (ctx.classicScores.fourOfKind ?? 0) +
+                  (ctx.classicScores.fullHouse ?? 0) +
+                  (ctx.classicScores.smallStraight ?? 0) +
+                  (ctx.classicScores.largeStraight ?? 0) +
+                  (ctx.classicScores.yahtzee ?? 0) +
+                  (ctx.classicScores.chance ?? 0)
+                : 0;
+        } else {
+            score = ctx.rainbowScores
+                ? [
+                    ctx.rainbowScores.aces ?? 0,
+                    ctx.rainbowScores.twos ?? 0,
+                    ctx.rainbowScores.threes ?? 0,
+                    ctx.rainbowScores.fours ?? 0,
+                    ctx.rainbowScores.fives ?? 0,
+                    ctx.rainbowScores.sixes ?? 0,
+                    ctx.rainbowScores.threeOfKind ?? 0,
+                    ctx.rainbowScores.fourOfKind ?? 0,
+                    ctx.rainbowScores.fullHouse ?? 0,
+                    ctx.rainbowScores.smallStraight ?? 0,
+                    ctx.rainbowScores.largeStraight ?? 0,
+                    ctx.rainbowScores.yahtzee ?? 0,
+                    ctx.rainbowScores.chance ?? 0,
+                    ctx.rainbowScores.allRed ?? 0,
+                    ctx.rainbowScores.allBlue ?? 0,
+                    ctx.rainbowScores.allGreen ?? 0,
+                    ctx.rainbowScores.allYellow ?? 0,
+                    ctx.rainbowScores.allPurple ?? 0,
+                    ctx.rainbowScores.threeColorMix ?? 0,
+                    ctx.rainbowScores.fourColorMix ?? 0,
+                    ctx.rainbowScores.rainbowBonus ?? 0,
+                ].reduce((a, b) => a + b, 0)
+                : 0;
+        }
+
+        // Calculate finalScore for classic mode manually
+        const finalScore = score;
+
+        const zeroCount = Object.values(s)
+            .filter(v => typeof v === 'number' && v === 0).length;
+
+        return zeroCount >= 3 && finalScore >= 300;
+    },
+},
+{
+    id: 'unlucky-genius',
+    title: 'Unlucky Genius',
+    description: 'Finish a game with a zeroed Yahtzee but still score 400+ points',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🤕',
+    checkCondition: (ctx) => {
+        const s = ctx.classicScores || ctx.rainbowScores;
+        if (!s) return false;
+
+        const finalScore =
+            ctx.mode === 'classic'
+                ? (
+                    (ctx.classicScores?.aces ?? 0) +
+                    (ctx.classicScores?.twos ?? 0) +
+                    (ctx.classicScores?.threes ?? 0) +
+                    (ctx.classicScores?.fours ?? 0) +
+                    (ctx.classicScores?.fives ?? 0) +
+                    (ctx.classicScores?.sixes ?? 0) +
+                    (ctx.classicScores?.threeOfKind ?? 0) +
+                    (ctx.classicScores?.fourOfKind ?? 0) +
+                    (ctx.classicScores?.fullHouse ?? 0) +
+                    (ctx.classicScores?.smallStraight ?? 0) +
+                    (ctx.classicScores?.largeStraight ?? 0) +
+                    (ctx.classicScores?.yahtzee ?? 0) +
+                    (ctx.classicScores?.chance ?? 0)
+                )
+                : (
+                    (ctx.rainbowScores?.aces ?? 0) +
+                    (ctx.rainbowScores?.twos ?? 0) +
+                    (ctx.rainbowScores?.threes ?? 0) +
+                    (ctx.rainbowScores?.fours ?? 0) +
+                    (ctx.rainbowScores?.fives ?? 0) +
+                    (ctx.rainbowScores?.sixes ?? 0) +
+                    (ctx.rainbowScores?.threeOfKind ?? 0) +
+                    (ctx.rainbowScores?.fourOfKind ?? 0) +
+                    (ctx.rainbowScores?.fullHouse ?? 0) +
+                    (ctx.rainbowScores?.smallStraight ?? 0) +
+                    (ctx.rainbowScores?.largeStraight ?? 0) +
+                    (ctx.rainbowScores?.yahtzee ?? 0) +
+                    (ctx.rainbowScores?.chance ?? 0) +
+                    (ctx.rainbowScores?.allRed ?? 0) +
+                    (ctx.rainbowScores?.allBlue ?? 0) +
+                    (ctx.rainbowScores?.allGreen ?? 0) +
+                    (ctx.rainbowScores?.allYellow ?? 0) +
+                    (ctx.rainbowScores?.allPurple ?? 0) +
+                    (ctx.rainbowScores?.threeColorMix ?? 0) +
+                    (ctx.rainbowScores?.fourColorMix ?? 0) +
+                    (ctx.rainbowScores?.rainbowBonus ?? 0)
+                );
+
+        return s.yahtzee === 0 && finalScore >= 400;
+    },
+},
+{
+    id: 'the-perfectionist',
+    title: 'The Perfectionist',
+    description: 'Finish 10 perfect games',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🧽',
+    target: 10,
+    checkCondition: (ctx) => ctx.allTimeStats.perfectGamesCompleted ?? 0,
+},
+{
+    id: 'triple-threat',
+    title: 'Triple Threat',
+    description: 'Score a Yahtzee, Large Straight, and 4-of-a-kind in the same game',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🔺',
+    checkCondition: (ctx) => {
+        const s = ctx.classicScores || ctx.rainbowScores;
+        if (!s) return false;
+
+        const large = s.largeStraight > 0;
+        const fourKind = s.fourOfKind > 0;
+        const yahtzee = s.yahtzee === 50;
+
+        return large && fourKind && yahtzee;
+    },
+},
+{
+    id: 'momentum-starter',
+    title: 'Momentum Starter',
+    description: 'Maintain a 3-day play streak',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🛫',
+    target: 3,
+    checkCondition: (ctx) => ctx.allTimeStats.streak ?? 0,
+},
+{
+    id: 'daily-roller',
+    title: 'Daily Roller',
+    description: 'Maintain a 7-day play streak',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '📅',
+    target: 7,
+    checkCondition: (ctx) => ctx.allTimeStats.streak ?? 0,
+},
+{
+    id: 'monthly-master',
+    title: 'Monthly Master',
+    description: 'Maintain a 30-day play streak',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🏃‍♂️‍➡️',
+    target: 30,
+    checkCondition: (ctx) => ctx.allTimeStats.streak ?? 0,
+},
+{
+    id: 'streak-machine',
+    title: 'Streak Machine',
+    description: 'Maintain a 50-day play streak',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🥳',
+    target: 50,
+    checkCondition: (ctx) => ctx.allTimeStats.streak ?? 0,
+},
 
     // ============================================
     // RAINBOW MODE ACHIEVEMENTS (per-game ones check full card)
@@ -165,7 +381,7 @@ export const ACHIEVEMENTS: Achievement[] = [
         description: 'Score five different color categories',
         category: 'rainbow',
         modes: ['rainbow'],
-        icon: '😛', // Taste the Rainbow
+        icon: '😛',
         checkCondition: (ctx) => {
             const s = ctx.rainbowScores;
             if (!isRainbowCardComplete(s)) return false;
@@ -244,6 +460,16 @@ export const ACHIEVEMENTS: Achievement[] = [
         },
     },
     {
+    id: 'rainbow-rainmaker',
+    title: 'Rainbow Rainmaker',
+    description: 'Score 20,000 total points in Rainbow Mode',
+    category: 'rainbow',
+    modes: ['rainbow'],
+    icon: '💧',
+    target: 20000,
+    checkCondition: (ctx) => ctx.allTimeStats.totalRainbowPoints ?? 0,
+},
+    {
         id: 'color-chain-master',
         title: 'Color Chain Master',
         description: 'Score a complete increasing color chain',
@@ -304,6 +530,54 @@ export const ACHIEVEMENTS: Achievement[] = [
         },
     },
     {
+    id: 'prismatic-peak',
+    title: 'Prismatic Peak',
+    description: 'Score 700+ in Rainbow Mode',
+    category: 'rainbow',
+    modes: ['rainbow'],
+    icon: '🏔️',
+    checkCondition: (ctx) => {
+        const bestRainbow = ctx.allTimeStats.bestRainbowScore ?? 0;
+        return bestRainbow >= 700;
+    },
+},
+    {
+        id: 'rainbow-elite',
+        title: 'Rainbow Elite',
+        description: 'Score 400+ points in Rainbow 10 times',
+        category: 'rainbow',
+        modes: ['rainbow'],
+        icon: '💠',
+        target: 10,
+        checkCondition: (ctx) => ctx.allTimeStats.rainbow400PlusGames ?? 0,
+    },
+    {
+    id: 'chromatic-surge',
+    title: 'Chromatic Surge',
+    description: 'Score 200+ total points from rainbow-specific categories in a single Rainbow game',
+    category: 'rainbow',
+    modes: ['rainbow'],
+    icon: '💥',
+    checkCondition: (ctx) => {
+        const s = ctx.rainbowScores;
+        if (!isRainbowCardComplete(s)) return false;
+
+        const rainbowCats = [
+            s.allRed ?? 0,
+            s.allBlue ?? 0,
+            s.allGreen ?? 0,
+            s.allYellow ?? 0,
+            s.allPurple ?? 0,
+            s.threeColorMix ?? 0,
+            s.fourColorMix ?? 0,
+            s.rainbowBonus ?? 0,
+        ];
+
+        const sum = rainbowCats.reduce((a, b) => a + b, 0);
+        return sum >= 200;
+    },
+},
+    {
         id: 'spectrum-yahtzee',
         title: 'Spectrum Yahtzee',
         description: 'Score Yahtzee and complete a full rainbow set in the same game',
@@ -353,6 +627,26 @@ export const ACHIEVEMENTS: Achievement[] = [
             const s = ctx.classicScores;
             if (!isClassicCardComplete(s)) return false;
             return s.threeOfKind !== null && s.threeOfKind >= 20;
+        },
+    },
+    {
+        id: 'upper-ace',
+        title: 'Upper Ace',
+        description: 'Score 70 or more points in the upper section in a Classic game',
+        category: 'classic',
+        modes: ['classic'],
+        icon: '🧠',
+        checkCondition: (ctx) => {
+            const s = ctx.classicScores;
+            if (!isClassicCardComplete(s)) return false;
+            const upperTotal =
+                (s.aces ?? 0) +
+                (s.twos ?? 0) +
+                (s.threes ?? 0) +
+                (s.fours ?? 0) +
+                (s.fives ?? 0) +
+                (s.sixes ?? 0);
+            return upperTotal >= 70;
         },
     },
     {
