@@ -91,6 +91,66 @@ const Game = () => {
         return 'neutral' as const;
       });
 
+      // ✅ Bonus Yahtzee check immediately after rolling
+      const isYahtzeeRoll = newDice.every((die) => die === newDice[0]);
+      const updatedPlayers = [...gameState.players];
+      const player = updatedPlayers[gameState.currentPlayerIndex];
+      let bonusYahtzeeAwarded = false;
+
+      if (isYahtzeeRoll) {
+        if (
+          gameState.mode === 'classic' &&
+          player.classicScores.yahtzee === 50
+        ) {
+          player.classicScores.bonusYahtzees =
+            (player.classicScores.bonusYahtzees || 0) + 1;
+          bonusYahtzeeAwarded = true;
+        }
+        if (
+          gameState.mode === 'rainbow' &&
+          player.rainbowScores.yahtzee === 50
+        ) {
+          player.rainbowScores.bonusYahtzees =
+            (player.rainbowScores.bonusYahtzees || 0) + 1;
+          bonusYahtzeeAwarded = true;
+        }
+      }
+
+      if (bonusYahtzeeAwarded) {
+        toast({
+          title: 'Bonus Yahtzee! 🎉',
+          description: '+100 points!',
+        });
+
+        // Advance to next player automatically after a pure bonus Yahtzee
+        const nextPlayerIndex =
+          (gameState.currentPlayerIndex + 1) % gameState.players.length;
+        const updatedState: GameState = {
+          ...gameState,
+          players: updatedPlayers,
+          currentPlayerIndex: nextPlayerIndex,
+          turnState: {
+            rollsLeft: 3,
+            heldDice: [false, false, false, false, false],
+            currentDice: [0, 0, 0, 0, 0],
+            currentColors:
+              gameState.mode === 'rainbow'
+                ? ['red', 'blue', 'green', 'yellow', 'purple']
+                : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+            hasRolled: false,
+          },
+        };
+        setGameState(updatedState);
+        gameService.saveCurrentGame(updatedState);
+        setIsRolling(false);
+
+        const isGameComplete = checkGameComplete(updatedState);
+        if (isGameComplete) {
+          setTimeout(() => setShowFinishDialog(true), 500);
+        }
+        return;
+      }
+
       const updatedState: GameState = {
         ...gameState,
         turnState: {
@@ -135,6 +195,116 @@ const Game = () => {
     const updatedPlayers = [...gameState.players];
     const player = updatedPlayers[gameState.currentPlayerIndex];
 
+    // ✅ Proper Yahtzee / Joker / bonus rules
+    const isYahtzeeRoll = turnState.currentDice.every(
+      (die) => die === turnState.currentDice[0]
+    );
+    let blockScoring = false;
+    let bonusYahtzeeTurnEnd = false;
+
+    if (isYahtzeeRoll) {
+      if (gameState.mode === 'classic') {
+        if (player.classicScores.yahtzee === 0) {
+          // Yahtzee box zeroed – no more bonuses or Joker scoring
+          toast({
+            title: 'No more Yahtzee bonuses!',
+            description:
+              'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
+            variant: 'destructive',
+          });
+          blockScoring = true;
+        } else if (
+          player.classicScores.yahtzee === 50 &&
+          category !== 'yahtzee'
+        ) {
+          // Bonus Yahtzee when Yahtzee box already has 50 – no scoring elsewhere
+          player.classicScores.bonusYahtzees =
+            (player.classicScores.bonusYahtzees || 0) + 1;
+          toast({
+            title: 'Bonus Yahtzee! 🎉',
+            description: '+100 points!',
+          });
+          bonusYahtzeeTurnEnd = true;
+        } else if (
+          category !== 'yahtzee' &&
+          player.classicScores.yahtzee == null
+        ) {
+          // First Yahtzee must go in the Yahtzee box
+          toast({
+            title: 'Yahtzee must be scored in Yahtzee box first!',
+            description: 'Score your first Yahtzee in the Yahtzee box.',
+            variant: 'destructive',
+          });
+          blockScoring = true;
+        }
+      }
+
+      if (gameState.mode === 'rainbow') {
+        if (player.rainbowScores.yahtzee === 0) {
+          toast({
+            title: 'No more Yahtzee bonuses!',
+            description:
+              'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
+            variant: 'destructive',
+          });
+          blockScoring = true;
+        } else if (
+          player.rainbowScores.yahtzee === 50 &&
+          category !== 'yahtzee'
+        ) {
+          player.rainbowScores.bonusYahtzees =
+            (player.rainbowScores.bonusYahtzees || 0) + 1;
+          toast({
+            title: 'Bonus Yahtzee! 🎉',
+            description: '+100 points!',
+          });
+          bonusYahtzeeTurnEnd = true;
+        } else if (
+          category !== 'yahtzee' &&
+          player.rainbowScores.yahtzee == null
+        ) {
+          toast({
+            title: 'Yahtzee must be scored in Yahtzee box first!',
+            description: 'Score your first Yahtzee in the Yahtzee box.',
+            variant: 'destructive',
+          });
+          blockScoring = true;
+        }
+      }
+    }
+
+    if (blockScoring) return;
+
+    // If this was a pure bonus Yahtzee, end the turn without scoring in any box
+    if (bonusYahtzeeTurnEnd) {
+      const nextPlayerIndex =
+        (gameState.currentPlayerIndex + 1) % gameState.players.length;
+      const updatedState: GameState = {
+        ...gameState,
+        players: updatedPlayers,
+        currentPlayerIndex: nextPlayerIndex,
+        turnState: {
+          rollsLeft: 3,
+          heldDice: [false, false, false, false, false],
+          currentDice: [0, 0, 0, 0, 0],
+          currentColors:
+            gameState.mode === 'rainbow'
+              ? ['red', 'blue', 'green', 'yellow', 'purple']
+              : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+          hasRolled: false,
+        },
+      };
+      setGameState(updatedState);
+      gameService.saveCurrentGame(updatedState);
+
+      const isGameComplete = checkGameComplete(updatedState);
+      if (isGameComplete) {
+        setTimeout(() => setShowFinishDialog(true), 500);
+      }
+      return;
+    }
+
+    // Normal scoring path
     if (gameState.mode === 'classic') {
       player.classicScores = {
         ...player.classicScores,
@@ -147,21 +317,7 @@ const Game = () => {
       };
     }
 
-    // Check for bonus Yahtzee
-    if (
-      gameState.mode === 'classic' &&
-      category === 'yahtzee' &&
-      value === 50 &&
-      player.classicScores.yahtzee === 50
-    ) {
-      player.classicScores.bonusYahtzees += 1;
-      toast({
-        title: 'Bonus Yahtzee! 🎉',
-        description: '+100 points!',
-      });
-    }
-
-    // Reset turn state for next player or next turn
+    // Next player / next turn
     const nextPlayerIndex =
       (gameState.currentPlayerIndex + 1) % gameState.players.length;
 
@@ -184,7 +340,6 @@ const Game = () => {
     setGameState(updatedState);
     gameService.saveCurrentGame(updatedState);
 
-    // Check if game is complete
     const isGameComplete = checkGameComplete(updatedState);
     if (isGameComplete) {
       setTimeout(() => setShowFinishDialog(true), 500);
@@ -411,7 +566,7 @@ const Game = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/10"
+                    className="text-white hover:bg.white/10 hover:bg-white/10"
                   >
                     <Palette className="w-4 h-4" />
                   </Button>
