@@ -849,10 +849,13 @@ export const ACHIEVEMENTS: Achievement[] = [
   modes: ['classic', 'rainbow'],
   icon: '💡',
   target: 5,
-  checkCondition: (ctx: AchievementContext) => {
-    // incremental progress based on perfect puzzle count
-    return ctx.allTimeStats.puzzlePerfects ?? 0;
-  },
+    checkCondition: (ctx: AchievementContext) => {
+      // Count puzzles completed with perfect solves (attempts === 1)
+      if (!ctx.puzzleProgress || typeof ctx.puzzleProgress !== 'object') return 0;
+      const progressArr = Object.values(ctx.puzzleProgress);
+      const perfectCount = progressArr.filter(p => p.isCompleted && p.attempts === 1).length;
+      return perfectCount;
+    },
 },
 {
   id: 'puzzle-veteran',

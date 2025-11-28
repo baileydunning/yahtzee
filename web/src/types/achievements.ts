@@ -33,6 +33,7 @@ export interface AchievementContext {
 
     puzzleSuccess?: boolean;
     puzzleAttempts?: number;
+    puzzleProgress?: Record<string, import('./puzzle').PuzzleProgress>;
 }
 
 export interface AllTimeStats {
