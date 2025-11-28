@@ -4,7 +4,15 @@ import { Navigation } from '@/components/Navigation';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, TrendingUp, Target, Zap } from 'lucide-react';
+import {
+  BarChart3,
+  TrendingUp,
+  Target,
+  Zap,
+  Trophy,
+  Puzzle as PuzzleIcon,
+  Star,
+} from 'lucide-react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -14,6 +22,9 @@ import {
 } from 'recharts';
 
 import { achievementService } from '@/services/achievementService';
+import { puzzleService } from '@/services/puzzleService';
+import { ACHIEVEMENTS } from '@/config/achievements';
+import { PUZZLES } from '@/config/puzzles';
 import type { AllTimeStats } from '@/types/achievements';
 
 // ---------------- CORE STATS COMPONENT ----------------
@@ -24,7 +35,7 @@ const Stats = () => {
     achievementService.getAllTimeStats()
   );
 
-  // Convenience aliases
+  // Convenience aliases from allTimeStats (no extra services for scores)
   const classicScores = allTimeStats.classicHighScores || [];
   const rainbowScores = allTimeStats.rainbowHighScores || [];
 
@@ -33,7 +44,22 @@ const Stats = () => {
   const classicAverage = allTimeStats.classicAverage || 0;
   const rainbowAverage = allTimeStats.rainbowAverage || 0;
 
+  // ---------- Puzzles + Achievements for Challenges tab ----------
+
+  const puzzleStats = puzzleService.getStats();
+  const allPuzzleProgress = puzzleService.getAllProgress();
+  const achievementProgress = achievementService.getAchievementProgress();
+
+  const unlockedAchievements = ACHIEVEMENTS.filter(
+    (a) => achievementProgress[a.id]?.unlocked
+  );
+
+  const completedPuzzleEntries = Object.entries(allPuzzleProgress).filter(
+    ([, progress]) => progress.isCompleted
+  );
+
   // ---------- Score distributions ----------
+
   const buildHistogram = (
     scores: number[],
     buckets: { label: string; min: number; max: number | null }[],
@@ -120,9 +146,10 @@ const Stats = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="classic" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="classic">Classic Mode</TabsTrigger>
-            <TabsTrigger value="rainbow">Rainbow Mode</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="classic">Classic</TabsTrigger>
+            <TabsTrigger value="rainbow">Rainbow</TabsTrigger>
+            <TabsTrigger value="challenges">Challenges</TabsTrigger>
           </TabsList>
 
           {/* ---------------- CLASSIC ---------------- */}
@@ -280,6 +307,114 @@ const Stats = () => {
               />
             )}
           </TabsContent>
+
+          {/* ---------------- CHALLENGES (Puzzles + Unlocked Achievements) ---------------- */}
+          <TabsContent value="challenges" className="space-y-4">
+            <div className="grid gap-4">
+              <StatCard
+                icon={PuzzleIcon}
+                label="Puzzles Completed"
+                value={`${puzzleStats.completed}/${PUZZLES.length}`}
+                subtext={
+                  puzzleStats.total > 0
+                    ? `${PUZZLES.length - puzzleStats.completed} remaining`
+                    : undefined
+                }
+              />
+
+              <StatCard
+                icon={Trophy}
+                label="Achievements Unlocked"
+                value={`${unlockedAchievements.length}/${ACHIEVEMENTS.length}`}
+                subtext={
+                  ACHIEVEMENTS.length > 0
+                    ? `${Math.round(
+                        (unlockedAchievements.length / ACHIEVEMENTS.length) * 100
+                      )}% complete`
+                    : undefined
+                }
+              />
+            </div>
+
+            {/* Recent Puzzle Completions (only completed puzzles) */}
+            {completedPuzzleEntries.length > 0 && (
+              <Card className="p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <PuzzleIcon className="w-4 h-4" />
+                  Recent Puzzles
+                </h3>
+                <div className="space-y-2">
+                  {completedPuzzleEntries
+                    .sort((a, b) => {
+                      const dateA = a[1].completedAt
+                        ? new Date(a[1].completedAt!).getTime()
+                        : 0;
+                      const dateB = b[1].completedAt
+                        ? new Date(b[1].completedAt!).getTime()
+                        : 0;
+                      return dateB - dateA;
+                    })
+                    .slice(0, 5)
+                    .map(([puzzleId, progress]) => {
+                      const puzzle = PUZZLES.find(p => p.id === puzzleId);
+                      if (!puzzle) return null;
+                      return (
+                        <div
+                          key={puzzleId}
+                          className="flex justify-between items-center py-2 px-3 rounded-md bg-muted/30"
+                        >
+                          <div className="mr-3">
+                            <p className="text-sm font-medium text-foreground">
+                              {puzzle.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground capitalize">
+                              {puzzle.difficulty} • {puzzle.gameMode}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-foreground">
+                              {progress.bestScore ?? '—'}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {progress.attempts} attempt
+                              {progress.attempts !== 1 ? 's' : ''}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </Card>
+            )}
+
+            {/* Unlocked Achievements only */}
+            {unlockedAchievements.length > 0 && (
+              <Card className="p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  Unlocked Achievements
+                </h3>
+                <div className="space-y-2">
+                  {unlockedAchievements.map(achievement => (
+                    <AchievementRow
+                      key={achievement.id}
+                      achievement={achievement}
+                    />
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {unlockedAchievements.length === 0 &&
+              completedPuzzleEntries.length === 0 && (
+                <Card className="p-6">
+                  <p className="text-sm text-muted-foreground text-center">
+                    No challenges completed yet. Play games, solve puzzles, and
+                    unlock achievements to fill this page!
+                  </p>
+                </Card>
+              )}
+          </TabsContent>
         </Tabs>
 
         {/* ---------------- OVERALL ---------------- */}
@@ -295,10 +430,13 @@ const Stats = () => {
             />
             <TotalStat
               label="Total Yahtzees"
-              value={allTimeStats.totalYahtzeesInClassic + allTimeStats.totalYahtzeesInRainbow}
+              value={
+                allTimeStats.totalYahtzeesInClassic +
+                allTimeStats.totalYahtzeesInRainbow
+              }
             />
             <TotalStat
-              label="Streak"
+              label="Daily Streak"
               value={allTimeStats.streak}
             />
             <TotalStat
@@ -378,6 +516,27 @@ const ScoreDistributionCard = ({
   </Card>
 );
 
+const AchievementRow = ({
+  achievement,
+}: {
+  achievement: (typeof ACHIEVEMENTS)[0];
+}) => (
+  <div className="flex items-center gap-3 p-2 rounded-md bg-muted/30">
+    <div className="text-lg">
+      {/* icon can be a ReactNode or string depending on your ACHIEVEMENTS config */}
+      {achievement.icon}
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-medium text-foreground truncate">
+        {achievement.title}
+      </p>
+      <p className="text-xs text-muted-foreground truncate">
+        {achievement.description}
+      </p>
+    </div>
+  </div>
+);
+
 // ---------------- WRAPPER WITH CLEAR BUTTON ----------------
 
 const StatsWithClear = () => {
@@ -391,13 +550,13 @@ const StatsWithClear = () => {
           onClick={() => {
             if (
               globalThis.confirm(
-                'Are you sure you want to clear all stats and achievements? This cannot be undone.',
+                'Are you sure you want to clear all stats, puzzles, and achievements? This cannot be undone.',
               )
             ) {
               localStorage.removeItem('yahtzee_all_time_stats');
               localStorage.removeItem('yahtzee_achievement_progress');
-              // if you ever used this key in the past, clearing it is harmless
               localStorage.removeItem('yahtzee_high_scores');
+              localStorage.removeItem('yahtzee_puzzle_progress');
               navigate('/');
             }
           }}

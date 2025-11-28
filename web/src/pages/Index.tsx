@@ -7,23 +7,31 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card } from '@/components/ui/card';
 import { Navigation } from '@/components/Navigation';
 import { gameService } from '@/services/gameService';
-import { GameMode, Player, GameState } from '@/types/game';
+import { Player, GameState } from '@/types/game';
 import { Dices, Plus, Trash2 } from 'lucide-react';
+
+type SelectableMode = 'classic' | 'rainbow' | 'puzzle';
 
 const Index = () => {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<GameMode>('classic');
+  const [mode, setMode] = useState<SelectableMode>('classic');
   const [playerNames, setPlayerNames] = useState<string[]>(['']);
   const [hasExistingGame, setHasExistingGame] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
+    const settings = gameService.getSettings();
+    if (settings.defaultMode !== 'puzzle') {
+      setMode(settings.defaultMode);
+    }
+    
     const currentGame = gameService.getCurrentGame();
     setHasExistingGame(!!currentGame);
   }, []);
 
   const addPlayer = () => {
     if (playerNames.length < 4) {
-      setPlayerNames([...playerNames, '']);
+      setPlayerNames([...playerNames, `Player ${playerNames.length + 1}`]);
     }
   };
 
@@ -40,6 +48,20 @@ const Index = () => {
   };
 
   const startNewGame = () => {
+    // If puzzle mode, navigate to puzzle list
+    if (mode === 'puzzle') {
+      navigate('/puzzles');
+      return;
+    }
+
+    // Validate player names
+    const invalidName = playerNames.some((name) => !name.trim());
+    if (invalidName) {
+      setNameError('Please enter a name for each player.');
+      return;
+    }
+    setNameError(null);
+
     const players: Player[] = playerNames.map((name, index) => ({
       id: `player-${Date.now()}-${index}`,
       name: name.trim(),
@@ -111,6 +133,8 @@ const Index = () => {
     navigate('/game');
   };
 
+  const isPuzzleMode = mode === 'puzzle';
+
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-8">
       <div className="max-w-2xl mx-auto p-4 pt-8">
@@ -119,7 +143,7 @@ const Index = () => {
             <Dices className="w-10 h-10 text-primary" />
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">Yahtzee</h1>
           </div>
-          <p className="text-muted-foreground text-lg">Classic & Rainbow Modes</p>
+          <p className="text-muted-foreground text-lg">Classic, Rainbow & Puzzle Modes</p>
         </div>
 
         {hasExistingGame && (
@@ -148,12 +172,12 @@ const Index = () => {
             <div className="space-y-6">
               <div>
                 <Label className="text-base font-medium mb-3 block">Game Mode</Label>
-                <RadioGroup value={mode} onValueChange={(v) => setMode(v as GameMode)}>
+                <RadioGroup value={mode} onValueChange={(v) => setMode(v as SelectableMode)}>
                   <div className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-accent transition-colors">
                     <RadioGroupItem value="classic" id="classic" />
                     <Label htmlFor="classic" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Classic Yahtzee</div>
-                      <div className="text-sm text-muted-foreground">Traditional numbered dice scoring</div>
+                      <div className="font-medium">Classic Mode</div>
+                      <div className="text-sm text-muted-foreground">The game that started it all</div>
                     </Label>
                   </div>
                   
@@ -161,54 +185,65 @@ const Index = () => {
                     <RadioGroupItem value="rainbow" id="rainbow" />
                     <Label htmlFor="rainbow" className="flex-1 cursor-pointer">
                       <div className="font-medium">Rainbow Mode</div>
-                      <div className="text-sm text-muted-foreground">5-color dice (Red, Yellow, Green, Blue, Purple)</div>
+                      <div className="text-sm text-muted-foreground">Unleash the power of colorful dice</div>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-accent transition-colors">
+                    <RadioGroupItem value="puzzle" id="puzzle" />
+                    <Label htmlFor="puzzle" className="flex-1 cursor-pointer">
+                      <div className="font-medium flex items-center gap-2">
+                        Puzzle Mode
+                      </div>
+                      <div className="text-sm text-muted-foreground">Tackle unique objectives and test your skills</div>
                     </Label>
                   </div>
                 </RadioGroup>
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label className="text-base font-medium">Players</Label>
-                  {playerNames.length < 4 && (
-                    <Button onClick={addPlayer} variant="outline" size="sm">
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add Player
-                    </Button>
+              {/* Only show player selection for non-puzzle modes */}
+              {!isPuzzleMode && (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-base font-medium">Players</Label>
+                    {playerNames.length < 4 && (
+                      <Button onClick={addPlayer} variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add Player
+                      </Button>
+                    )}
+                  </div>
+                  {nameError && (
+                    <div className="text-sm text-red-600 mb-2">{nameError}</div>
                   )}
+                  <div className="space-y-3">
+                    {playerNames.map((name, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          value={name}
+                          onChange={(e) => updatePlayerName(index, e.target.value)}
+                          placeholder={`Player ${index + 1}`}
+                          className="text-base h-12"
+                          required
+                        />
+                        {playerNames.length > 1 && (
+                          <Button
+                            onClick={() => removePlayer(index)}
+                            variant="outline"
+                            size="icon"
+                            className="h-12 w-12 shrink-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                
-                <div className="space-y-3">
-                  {playerNames.map((name, index) => (  
-                    <div key={index} className="flex gap-2">  
-                      <Input  
-                        value={name}  
-                        onChange={(e) => updatePlayerName(index, e.target.value)}  
-                        placeholder="Enter name"  
-                        className="text-base h-12"  
-                      />  
-                      {playerNames.length > 1 && (
-                        <Button
-                          onClick={() => removePlayer(index)}
-                          variant="outline"
-                          size="icon"
-                          className="h-12 w-12 shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              )}
 
-              <Button
-                onClick={startNewGame}
-                size="lg"
-                className="w-full text-base h-12"
-                disabled={playerNames.some(name => !name.trim())}
-              >
-                Start Game
+              <Button onClick={startNewGame} size="lg" className="w-full text-base h-12">
+                {isPuzzleMode ? 'Browse Puzzles' : 'Start Game'}
               </Button>
             </div>
           </Card>

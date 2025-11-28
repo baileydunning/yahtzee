@@ -1,6 +1,8 @@
-import { GameState, HighScore } from '@/types/game';
+import { GameState, HighScore, GameMode, AppSettings } from '@/types/game';
+import { achievementService } from '@/services/achievementService';
 
 const CURRENT_GAME_KEY = 'yahtzee_current_game';
+const SETTINGS_KEY = 'yahtzee_settings';
 
 export const gameService = {
   // -----------------------------
@@ -59,5 +61,23 @@ export const gameService = {
       const text = await res.text().catch(() => '');
       throw new Error(`Failed to save high score: ${res.status} ${text}`);
     }
+  },
+
+  getSettings(): AppSettings {
+    const data = localStorage.getItem(SETTINGS_KEY);
+    return data ? JSON.parse(data) : {
+      defaultMode: 'classic' as GameMode,
+    };
+  },
+
+  saveSettings(settings: AppSettings): void {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  },
+
+  clearAllData(): void {
+    this.clearCurrentGame();
+    this.clearHighScores();
+    localStorage.removeItem(SETTINGS_KEY);
+    achievementService.clearAllData();
   },
 };

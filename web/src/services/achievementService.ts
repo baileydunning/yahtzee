@@ -1,5 +1,5 @@
 import { AchievementProgress, AllTimeStats } from '@/types/achievements';
-import { HighScore } from '@/types/game';
+import { GameMode, HighScore } from '@/types/game';
 
 const ACHIEVEMENT_PROGRESS_KEY = 'yahtzee_achievement_progress';
 const ALL_TIME_STATS_KEY = 'yahtzee_all_time_stats';
@@ -31,6 +31,11 @@ const DEFAULT_ALL_TIME_STATS: AllTimeStats = {
   rainbowBonusYahtzees: 0,
   streak: 0,
   perfectGamesCompleted: 0,
+  puzzlesPlayed: 0,
+  puzzlesSolved: 0,
+  classicPuzzlesSolved: 0,
+  rainbowPuzzlesSolved: 0,
+  puzzlePerfects: 0,
 };
 
 export const achievementService = {
@@ -126,7 +131,7 @@ export const achievementService = {
   },
 
   // -----------------------------
-  // Update stats after a game completes
+  // Update stats after a normal game completes
   // -----------------------------
   updateStatsAfterGame(highScore: HighScore): void {
     // 1) Append this game to the local high score history
@@ -139,49 +144,52 @@ export const achievementService = {
     const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
     const lastGameDate = stats.lastGameDate ? stats.lastGameDate.slice(0, 10) : null;
 
+    // Streak handling
     if (!lastGameDate) {
       // First game ever, start streak at 1
       stats.streak = 1;
     } else {
       const prev = new Date(lastGameDate);
       const curr = new Date(today);
-      const diffDays = Math.floor((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
+      const diffDays = Math.floor(
+        (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       if (diffDays === 0) {
-        // Played again on the same day, streak stays the same
+        // Same day, keep streak
         stats.streak = stats.streak || 1;
       } else if (diffDays === 1) {
-        // Played on consecutive days, increment streak
+        // Consecutive day
         stats.streak = (stats.streak || 1) + 1;
       } else if (diffDays > 1) {
-        // Missed a day, reset streak
+        // Missed one+ days, reset
         stats.streak = 1;
       }
     }
 
-    // Check for perfect game (no zeroes in any scored category)
-        let isPerfectGame = false;
-        if (highScore.scorecard) {
-          // Exclude bonusYahtzees from check
-          const nonBonusValues = Object.entries(highScore.scorecard)
-            .filter(([k]) => k !== 'bonusYahtzees')
-            .map(([_, v]) => v)
-            .filter(v => typeof v === 'number');
-          isPerfectGame = nonBonusValues.every(v => v !== 0);
-          if (isPerfectGame) {
-            stats.perfectGamesCompleted = (stats.perfectGamesCompleted || 0) + 1;
-          }
-        }
+    // Perfect game check (no zeroes), ignoring bonusYahtzees
+    if (highScore.scorecard) {
+      const nonBonusValues = Object.entries(highScore.scorecard)
+        .filter(([key]) => key !== 'bonusYahtzees')
+        .map(([_, val]) => val)
+        .filter((v) => typeof v === 'number');
+      const isPerfectGame = nonBonusValues.every((v) => v !== 0);
+
+      if (isPerfectGame) {
+        stats.perfectGamesCompleted = (stats.perfectGamesCompleted || 0) + 1;
+      }
+    }
 
     if (highScore.mode === 'classic') {
       stats.classicGamesCompleted += 1;
       stats.classicHighScores.push(highScore.score);
 
-      // update best classic score
+      // Best classic score
       if (highScore.score > stats.bestClassicScore) {
         stats.bestClassicScore = highScore.score;
       }
 
-      // calculate average for classic
+      // Classic average
       if (stats.classicHighScores.length > 0) {
         const sum = stats.classicHighScores.reduce((acc, val) => acc + val, 0);
         stats.classicAverage = Math.round(sum / stats.classicHighScores.length);
@@ -190,14 +198,14 @@ export const achievementService = {
       }
 
       if (highScore.scorecard) {
-        // Count Yahtzees & bonus Yahtzees
+        // Yahtzees & bonus Yahtzees
         if (highScore.scorecard.yahtzee === 50) {
           const bonus = highScore.scorecard.bonusYahtzees || 0;
           stats.totalYahtzeesInClassic += 1 + bonus;
           stats.classicBonusYahtzees += bonus;
         }
 
-        // Upper bonus
+        // Upper section
         const upperTotal =
           (highScore.scorecard.aces || 0) +
           (highScore.scorecard.twos || 0) +
@@ -218,7 +226,7 @@ export const achievementService = {
           stats.threeOfKind20Plus += 1;
         }
 
-        // 4-of-a-Kind 25+
+        // 4-of-a-kind 25+
         if (
           highScore.scorecard.fourOfKind &&
           highScore.scorecard.fourOfKind >= 25
@@ -226,7 +234,7 @@ export const achievementService = {
           stats.fourOfKind25Plus += 1;
         }
 
-        // Both straights
+        // Both straights in one game
         if (
           highScore.scorecard.smallStraight &&
           highScore.scorecard.smallStraight > 0 &&
@@ -236,7 +244,7 @@ export const achievementService = {
           stats.straightShooterGames += 1;
         }
 
-        // 275+ games
+        // 275+ classic games
         if (highScore.score >= 275) {
           stats.classic275PlusGames += 1;
         }
@@ -252,12 +260,12 @@ export const achievementService = {
         stats.rainbowBonusYahtzees += bonus;
       }
 
-      // update best rainbow score
+      // Best rainbow score
       if (highScore.score > stats.bestRainbowScore) {
         stats.bestRainbowScore = highScore.score;
       }
 
-      // calculate average for rainbow
+      // Rainbow average
       if (stats.rainbowHighScores.length > 0) {
         const sum = stats.rainbowHighScores.reduce((acc, val) => acc + val, 0);
         stats.rainbowAverage = Math.round(sum / stats.rainbowHighScores.length);
@@ -282,7 +290,7 @@ export const achievementService = {
 
     stats.lastGameDate = highScore.date || new Date().toISOString();
 
-    // Check if both modes played
+    // Both modes played?
     if (stats.classicGamesCompleted > 0 && stats.rainbowGamesCompleted > 0) {
       stats.bothModesPlayed = true;
     }
@@ -290,6 +298,40 @@ export const achievementService = {
     this.saveAllTimeStats(stats);
   },
 
+  // -----------------------------
+  // Update stats after a puzzle completes
+  // -----------------------------
+  updateStatsAfterPuzzle(args: {
+    puzzleId: string;
+    mode: GameMode;
+    success: boolean;
+    perfect: boolean;
+  }): void {
+    const stats = this.getAllTimeStats();
+
+    // Every attempt counts as a played puzzle
+    stats.puzzlesPlayed += 1;
+
+    if (args.success) {
+      stats.puzzlesSolved += 1;
+
+      if (args.mode === 'classic') {
+        stats.classicPuzzlesSolved += 1;
+      } else if (args.mode === 'rainbow') {
+        stats.rainbowPuzzlesSolved += 1;
+      }
+
+      if (args.perfect) {
+        stats.puzzlePerfects += 1;
+      }
+    }
+
+    this.saveAllTimeStats(stats);
+  },
+
+  // -----------------------------
+  // Clear EVERYTHING (progress + stats + high scores)
+  // -----------------------------
   clearAllData(): void {
     localStorage.removeItem(ACHIEVEMENT_PROGRESS_KEY);
     localStorage.removeItem(ALL_TIME_STATS_KEY);

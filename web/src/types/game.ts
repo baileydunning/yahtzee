@@ -1,4 +1,4 @@
-export type GameMode = 'classic' | 'rainbow';
+export type GameMode = 'classic' | 'rainbow' | 'puzzle';
 export type DiceColor = 'red' | 'blue' | 'green' | 'yellow' | 'purple';
 
 export interface ClassicScores {
@@ -80,4 +80,8 @@ export interface HighScore {
   scorecard?: ClassicScores | RainbowScores;
   date: string;
   note?: string;
+}
+
+export interface AppSettings {
+  defaultMode: GameMode;
 }

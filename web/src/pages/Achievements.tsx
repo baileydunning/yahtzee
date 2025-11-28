@@ -11,15 +11,25 @@ const Achievements = () => {
   const achievementsWithProgress = achievementEngine.getAllAchievementsWithProgress();
 
   // Group achievements by category
-  const rainbowAchievements = achievementsWithProgress.filter(a => a.category === 'rainbow');
-  const classicAchievements = achievementsWithProgress.filter(a => a.category === 'classic');
+  const rainbowAchievements = achievementsWithProgress.filter(
+    (a) => a.category === 'rainbow'
+  );
+  const classicAchievements = achievementsWithProgress.filter(
+    (a) => a.category === 'classic'
+  );
+  const puzzleAchievements = achievementsWithProgress.filter(
+    (a) => a.category === 'puzzle'
+  );
 
   // Calculate stats
   const totalAchievements = achievementsWithProgress.length;
-  const unlockedCount = achievementsWithProgress.filter(a => a.progress.unlocked).length;
-  const completionPercentage = totalAchievements === 0
-    ? 0
-    : Math.round((unlockedCount / totalAchievements) * 100);
+  const unlockedCount = achievementsWithProgress.filter(
+    (a) => a.progress.unlocked
+  ).length;
+  const completionPercentage =
+    totalAchievements === 0
+      ? 0
+      : Math.round((unlockedCount / totalAchievements) * 100);
 
   type AchievementWithProgress = (typeof achievementsWithProgress)[number];
 
@@ -43,7 +53,11 @@ const Achievements = () => {
               isUnlocked ? 'bg-primary/10' : 'bg-muted'
             }`}
           >
-            {isUnlocked ? achievement.icon : <Lock className="w-5 h-5 text-muted-foreground" />}
+            {isUnlocked ? (
+              achievement.icon
+            ) : (
+              <Lock className="w-5 h-5 text-muted-foreground" />
+            )}
           </div>
 
           {/* Content */}
@@ -111,14 +125,27 @@ const Achievements = () => {
 
         {/* Achievement Tabs */}
         <Tabs defaultValue="all" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="rainbow">Rainbow</TabsTrigger>
             <TabsTrigger value="classic">Classic</TabsTrigger>
+            <TabsTrigger value="rainbow">Rainbow</TabsTrigger>
+            <TabsTrigger value="puzzle">Puzzles</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-3">
             {achievementsWithProgress.map(renderAchievementCard)}
+          </TabsContent>
+
+          <TabsContent value="puzzle" className="space-y-3">
+            {puzzleAchievements.length > 0 ? (
+              puzzleAchievements.map(renderAchievementCard)
+            ) : (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">
+                  No Puzzle achievements yet. Try solving a few puzzles!
+                </p>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="rainbow" className="space-y-3">
@@ -148,12 +175,17 @@ const Achievements = () => {
       </div>
 
       <Navigation />
+
       {/* Clear Achievements Button */}
       <div className="flex justify-center mt-8 mb-4">
         <button
           className="px-4 py-2 border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium shadow"
           onClick={() => {
-            if (globalThis.confirm('Are you sure you want to clear all achievement progress? This cannot be undone.')) {
+            if (
+              globalThis.confirm(
+                'Are you sure you want to clear all achievement progress? This cannot be undone.'
+              )
+            ) {
               localStorage.removeItem('yahtzee_achievement_progress');
               globalThis.location.href = '/';
             }

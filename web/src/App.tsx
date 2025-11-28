@@ -8,26 +8,30 @@ import Game from "./pages/Game";
 import HighScoresPage from "./pages/HighScores";
 import StatsPage from "./pages/Stats";
 import AchievementsPage from "./pages/Achievements";
+import PuzzleList from "./pages/PuzzleList";
+import PuzzleGame from "./pages/PuzzleGame";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/game" element={<Game />} />
-          <Route path="/high-scores" element={<HighScoresPage />} />
-          <Route path="/stats" element={<StatsPage />} />
-          <Route path="/achievements" element={<AchievementsPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/game" element={<Game />} />
+            <Route path="/puzzles" element={<PuzzleList />} />
+            <Route path="/puzzle/:puzzleId" element={<PuzzleGame />} />
+            <Route path="/high-scores" element={<HighScoresPage />} />
+            <Route path="/stats" element={<StatsPage />} />
+            <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
   </QueryClientProvider>
 );
 

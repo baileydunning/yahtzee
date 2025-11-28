@@ -10,7 +10,7 @@ import { gameService } from '@/services/gameService';
 import { classicScoringEngine } from '@/services/scoringEngine';
 import { rainbowScoringEngine, RAINBOW_COLORS } from '@/services/rainbowScoringEngine';
 import { GameState, ClassicScores, RainbowScores, HighScore, DiceColor } from '@/types/game';
-import { ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trophy, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { achievementService } from '@/services/achievementService';
 import { achievementEngine } from '@/services/achievementEngine';
@@ -73,54 +73,6 @@ const Game = () => {
         return 'neutral' as const;
       });
 
-      // Check for bonus Yahtzee immediately after rolling
-      const isYahtzeeRoll = newDice.every(die => die === newDice[0]);
-      const updatedPlayers = [...gameState.players];
-      const player = updatedPlayers[gameState.currentPlayerIndex];
-      let bonusYahtzeeAwarded = false;
-      if (isYahtzeeRoll) {
-        if (gameState.mode === 'classic' && player.classicScores.yahtzee === 50) {
-          player.classicScores.bonusYahtzees = (player.classicScores.bonusYahtzees || 0) + 1;
-          bonusYahtzeeAwarded = true;
-        }
-        if (gameState.mode === 'rainbow' && player.rainbowScores.yahtzee === 50) {
-          player.rainbowScores.bonusYahtzees = (player.rainbowScores.bonusYahtzees || 0) + 1;
-          bonusYahtzeeAwarded = true;
-        }
-      }
-
-      if (bonusYahtzeeAwarded) {
-        toast({
-          title: 'Bonus Yahtzee! 🎉',
-          description: '+100 points!',
-        });
-        // Advance to next player automatically
-        const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
-        const updatedState: GameState = {
-          ...gameState,
-          players: updatedPlayers,
-          currentPlayerIndex: nextPlayerIndex,
-          turnState: {
-            rollsLeft: 3,
-            heldDice: [false, false, false, false, false],
-            currentDice: [0, 0, 0, 0, 0],
-            currentColors: gameState.mode === 'rainbow'
-              ? ['red', 'blue', 'green', 'yellow', 'purple']
-              : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
-            hasRolled: false,
-          },
-        };
-        setGameState(updatedState);
-        gameService.saveCurrentGame(updatedState);
-        setIsRolling(false);
-        // Check if game is complete
-        const isGameComplete = checkGameComplete(updatedState);
-        if (isGameComplete) {
-          setTimeout(() => setShowFinishDialog(true), 500);
-        }
-        return;
-      }
-
       const updatedState: GameState = {
         ...gameState,
         turnState: {
@@ -162,95 +114,6 @@ const Game = () => {
     const updatedPlayers = [...gameState.players];
     const player = updatedPlayers[gameState.currentPlayerIndex];
 
-    // Enforce correct Yahtzee rules:
-    // - First Yahtzee must be scored in Yahtzee box
-    // - If Yahtzee box is zeroed, no further Yahtzee bonuses or Joker scoring allowed
-    // - If Yahtzee box is filled with 50, subsequent Yahtzees give bonus and cannot be scored in any other box
-    const isYahtzeeRoll = turnState.currentDice.every(die => die === turnState.currentDice[0]);
-    let blockScoring = false;
-    let bonusYahtzeeTurnEnd = false;
-
-    if (isYahtzeeRoll) {
-      if (gameState.mode === 'classic') {
-        if (player.classicScores.yahtzee === 0) {
-          toast({
-            title: 'No more Yahtzee bonuses!',
-            description: 'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
-            variant: 'destructive',
-          });
-          blockScoring = true;
-        } else if (player.classicScores.yahtzee === 50 && category !== 'yahtzee') {
-          // Bonus Yahtzee: award points and end turn immediately
-          player.classicScores.bonusYahtzees = (player.classicScores.bonusYahtzees || 0) + 1;
-          toast({
-            title: 'Bonus Yahtzee! 🎉',
-            description: '+100 points!',
-          });
-          bonusYahtzeeTurnEnd = true;
-        } else if (category !== 'yahtzee' && player.classicScores.yahtzee == null) {
-          toast({
-            title: 'Yahtzee must be scored in Yahtzee box first!',
-            description: 'Score your first Yahtzee in the Yahtzee box.',
-            variant: 'destructive',
-          });
-          blockScoring = true;
-        }
-      }
-      if (gameState.mode === 'rainbow') {
-        if (player.rainbowScores.yahtzee === 0) {
-          toast({
-            title: 'No more Yahtzee bonuses!',
-            description: 'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
-            variant: 'destructive',
-          });
-          blockScoring = true;
-        } else if (player.rainbowScores.yahtzee === 50 && category !== 'yahtzee') {
-          player.rainbowScores.bonusYahtzees = (player.rainbowScores.bonusYahtzees || 0) + 1;
-          toast({
-            title: 'Bonus Yahtzee! 🎉',
-            description: '+100 points!',
-          });
-          bonusYahtzeeTurnEnd = true;
-        } else if (category !== 'yahtzee' && player.rainbowScores.yahtzee == null) {
-          toast({
-            title: 'Yahtzee must be scored in Yahtzee box first!',
-            description: 'Score your first Yahtzee in the Yahtzee box.',
-            variant: 'destructive',
-          });
-          blockScoring = true;
-        }
-      }
-    }
-
-    if (blockScoring) return;
-
-    // If bonus Yahtzee, end turn immediately (do not score in any box)
-    if (bonusYahtzeeTurnEnd) {
-      const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
-      const updatedState: GameState = {
-        ...gameState,
-        players: updatedPlayers,
-        currentPlayerIndex: nextPlayerIndex,
-        turnState: {
-          rollsLeft: 3,
-          heldDice: [false, false, false, false, false],
-          currentDice: [0, 0, 0, 0, 0],
-          currentColors: gameState.mode === 'rainbow'
-            ? ['red', 'blue', 'green', 'yellow', 'purple']
-            : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
-          hasRolled: false,
-        },
-      };
-      setGameState(updatedState);
-      gameService.saveCurrentGame(updatedState);
-      // Check if game is complete
-      const isGameComplete = checkGameComplete(updatedState);
-      if (isGameComplete) {
-        setTimeout(() => setShowFinishDialog(true), 500);
-      }
-      return;
-    }
-
     if (gameState.mode === 'classic') {
       player.classicScores = {
         ...player.classicScores,
@@ -263,9 +126,18 @@ const Game = () => {
       };
     }
 
+    // Check for bonus Yahtzee
+    if (gameState.mode === 'classic' && category === 'yahtzee' && value === 50 && player.classicScores.yahtzee === 50) {
+      player.classicScores.bonusYahtzees += 1;
+      toast({
+        title: "Bonus Yahtzee! 🎉",
+        description: "+100 points!",
+      });
+    }
+
     // Reset turn state for next player or next turn
     const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
-
+    
     const updatedState: GameState = {
       ...gameState,
       players: updatedPlayers,
@@ -296,21 +168,21 @@ const Game = () => {
       if (state.mode === 'classic') {
         const scores = player.classicScores;
         return scores.aces !== null && scores.twos !== null && scores.threes !== null &&
-          scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
-          scores.threeOfKind !== null && scores.fourOfKind !== null &&
-          scores.fullHouse !== null && scores.smallStraight !== null &&
-          scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null;
+               scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
+               scores.threeOfKind !== null && scores.fourOfKind !== null &&
+               scores.fullHouse !== null && scores.smallStraight !== null &&
+               scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null;
       } else {
         const scores = player.rainbowScores;
         return scores.aces !== null && scores.twos !== null && scores.threes !== null &&
-          scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
-          scores.threeOfKind !== null && scores.fourOfKind !== null &&
-          scores.fullHouse !== null && scores.smallStraight !== null &&
-          scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null &&
-          scores.allRed !== null && scores.allBlue !== null && scores.allGreen !== null &&
-          scores.allYellow !== null && scores.allPurple !== null &&
-          scores.threeColorMix !== null && scores.fourColorMix !== null &&
-          scores.rainbowBonus !== null;
+               scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
+               scores.threeOfKind !== null && scores.fourOfKind !== null &&
+               scores.fullHouse !== null && scores.smallStraight !== null &&
+               scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null &&
+               scores.allRed !== null && scores.allBlue !== null && scores.allGreen !== null &&
+               scores.allYellow !== null && scores.allPurple !== null &&
+               scores.threeColorMix !== null && scores.fourColorMix !== null &&
+               scores.rainbowBonus !== null;
       }
     });
   };
@@ -318,9 +190,9 @@ const Game = () => {
   const nextPlayer = () => {
     if (turnState.hasRolled && turnState.rollsLeft < 3) {
       toast({
-        title: 'Finish your turn',
-        description: 'Please select a category to score',
-        variant: 'destructive',
+        title: "Finish your turn",
+        description: "Please select a category to score",
+        variant: "destructive",
       });
       return;
     }
@@ -346,9 +218,9 @@ const Game = () => {
   const prevPlayer = () => {
     if (turnState.hasRolled && turnState.rollsLeft < 3) {
       toast({
-        title: 'Finish your turn',
-        description: 'Please select a category to score',
-        variant: 'destructive',
+        title: "Finish your turn",
+        description: "Please select a category to score",
+        variant: "destructive",
       });
       return;
     }
@@ -373,92 +245,77 @@ const Game = () => {
     gameService.saveCurrentGame(updatedState);
   };
 
-  const finishGame = async () => {
+  const resetCurrentTurn = () => {
+    const updatedState: GameState = {
+      ...gameState,
+      turnState: {
+        rollsLeft: 3,
+        heldDice: [false, false, false, false, false],
+        currentDice: [0, 0, 0, 0, 0],
+        currentColors: gameState.mode === 'rainbow'
+          ? ['red', 'blue', 'green', 'yellow', 'purple']
+          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        hasRolled: false,
+      },
+    };
+    setGameState(updatedState);
+    gameService.saveCurrentGame(updatedState);
+    toast({
+      title: "Turn Reset",
+      description: "Roll again to start fresh",
+    });
+  };
+
+  const finishGame = () => {
     const allUnlockedAchievements: any[] = [];
 
+    gameState.players.forEach(player => {
+      const score = gameState.mode === 'classic'
+        ? classicScoringEngine.calculateGrandTotal(player.classicScores)
+        : rainbowScoringEngine.calculateTotal(player.rainbowScores);
 
-    await Promise.all(
-      gameState.players.map(async (player) => {
-        const score = gameState.mode === 'classic'
-          ? classicScoringEngine.calculateGrandTotal(player.classicScores)
-          : rainbowScoringEngine.calculateTotal(player.rainbowScores);
+      const highScore: HighScore = {
+        id: `score-${Date.now()}-${player.id}`,
+        mode: gameState.mode,
+        score,
+        playerNames: [player.name],
+        date: new Date().toISOString(),
+        // Include full scorecard data for detailed view
+        scorecard: gameState.mode === 'classic' ? player.classicScores : player.rainbowScores,
+      };
 
-        const scorecard = {
-          id: player.id,
-          ...(gameState.mode === 'classic' ? player.classicScores : player.rainbowScores),
-        };
-
-        const highScore: HighScore = {
-          id: `score-${Date.now()}-${player.id}`,
-          mode: gameState.mode,
-          score,
-          playerNames: [player.name],
-          scorecard,
-          date: new Date().toISOString(),
-        };
-
-        // Save last game score for display on High Scores page
-        localStorage.setItem('yahtzee_last_game_score', JSON.stringify(highScore));
-
-        await gameService.saveHighScore(highScore);
-
-        // Update stats and check achievements
-        achievementService.updateStatsAfterGame(highScore);
-        const unlocked = achievementEngine.checkAchievementsAfterGame(highScore);
-        allUnlockedAchievements.push(...unlocked);
-
-        // Update best score in localStorage allTimeStats
-        const statsRaw = localStorage.getItem('yahtzee_all_time_stats');
-        const stats = statsRaw ? JSON.parse(statsRaw) : {};
-        if (gameState.mode === 'classic') {
-          if (!stats.bestClassicScore || score > stats.bestClassicScore) {
-            stats.bestClassicScore = score;
-            localStorage.setItem('yahtzee_all_time_stats', JSON.stringify(stats));
-          }
-        } else if (gameState.mode === 'rainbow') {
-          if (!stats.bestRainbowScore || score > stats.bestRainbowScore) {
-            stats.bestRainbowScore = score;
-            localStorage.setItem('yahtzee_all_time_stats', JSON.stringify(stats));
-          }
-        }
-      })
-    );
+      gameService.saveHighScore(highScore);
+      
+      // Update all-time stats for achievement tracking
+      achievementService.updateStatsAfterGame(highScore);
+      
+      // Check for newly unlocked achievements
+      const unlockedAchievements = achievementEngine.checkAchievementsAfterGame(highScore);
+      allUnlockedAchievements.push(...unlockedAchievements);
+    });
 
     gameService.clearCurrentGame();
 
     // Show achievement unlock toasts
     if (allUnlockedAchievements.length > 0) {
-      let idx = 0;
-      for (const achievement of allUnlockedAchievements) {
+      allUnlockedAchievements.forEach((achievement, index) => {
         setTimeout(() => {
           toast({
             title: undefined,
             description: <AchievementUnlockToast achievement={achievement} />,
             duration: 5000,
           });
-        }, idx * 600); // Stagger toasts
-        idx++;
-      }
-    }
-
-    const scoresSummary = gameState.players
-      .map((player) => {
-        return gameState.mode === 'classic'
-          ? classicScoringEngine.calculateGrandTotal(player.classicScores)
-          : rainbowScoringEngine.calculateTotal(player.rainbowScores);
-      })
-      .join(', ');
-
-    let achievementMsg = 'Scores saved to High Scores';
-    if (allUnlockedAchievements.length > 0) {
-      achievementMsg = `${allUnlockedAchievements.length} achievement` + (allUnlockedAchievements.length > 1 ? 's' : '') + ' unlocked!';
+        }, index * 600); // Stagger toasts
+      });
     }
 
     toast({
-      title: `Score: ${scoresSummary} 🎉`,
-      description: achievementMsg,
+      title: "Game Finished! 🎉",
+      description: allUnlockedAchievements.length > 0 
+        ? `${allUnlockedAchievements.length} achievement${allUnlockedAchievements.length > 1 ? 's' : ''} unlocked!`
+        : "Scores saved to High Scores",
     });
-
+    
     navigate('/high-scores');
   };
 
@@ -478,15 +335,25 @@ const Game = () => {
                 {gameState.players.length} Player{gameState.players.length > 1 ? 's' : ''}
               </p>
             </div>
-            <Button
-              onClick={() => setShowFinishDialog(true)}
-              variant="secondary"
-              size="sm"
-              className="bg-white text-gray-900 hover:bg-gray-100"
-            >
-              <Trophy className="w-4 h-4 mr-2" />
-              Finish
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={resetCurrentTurn}
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/10"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={() => setShowFinishDialog(true)}
+                variant="secondary"
+                size="sm"
+                className="bg-white text-gray-900 hover:bg-gray-100"
+              >
+                <Trophy className="w-4 h-4 mr-2" />
+                Finish
+              </Button>
+            </div>
           </div>
         </Card>
 
@@ -557,7 +424,7 @@ const Game = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={finishGame}>Finish &amp; Save</AlertDialogAction>
+            <AlertDialogAction onClick={finishGame}>Finish & Save</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

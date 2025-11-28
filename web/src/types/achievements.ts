@@ -1,6 +1,6 @@
 import { GameMode, ClassicScores, RainbowScores } from './game';
 
-export type AchievementCategory = 'rainbow' | 'classic' | 'dual';
+export type AchievementCategory = 'rainbow' | 'classic' | 'puzzle' | 'dual';
 
 export interface Achievement {
     id: string;
@@ -30,6 +30,9 @@ export interface AchievementContext {
     // Historical data from achievementService
     allTimeStats: AllTimeStats;
     unlockedAchievementIds: string[];
+
+    puzzleSuccess?: boolean;
+    puzzleAttempts?: number;
 }
 
 export interface AllTimeStats {
@@ -63,5 +66,11 @@ export interface AllTimeStats {
     // Bonus Yahtzee tracking (for achievements)
     classicBonusYahtzees: number;
     rainbowBonusYahtzees: number;
+
+    puzzlesPlayed: number;
+    puzzlesSolved: number;          // completed successfully
+    classicPuzzlesSolved: number;
+    rainbowPuzzlesSolved: number;
+    puzzlePerfects: number;
 }
 
