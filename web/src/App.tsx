@@ -11,11 +11,13 @@ import AchievementsPage from "./pages/Achievements";
 import PuzzleList from "./pages/PuzzleList";
 import PuzzleGame from "./pages/PuzzleGame";
 import NotFound from "./pages/NotFound";
+import { DiceSkinProvider } from "./contexts/DiceSkinContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <DiceSkinProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -32,6 +34,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+    </DiceSkinProvider>
   </QueryClientProvider>
 );
 

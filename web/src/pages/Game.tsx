@@ -8,9 +8,25 @@ import { InteractiveClassicScorecard } from '@/components/InteractiveClassicScor
 import { InteractiveRainbowScorecard } from '@/components/InteractiveRainbowScorecard';
 import { gameService } from '@/services/gameService';
 import { classicScoringEngine } from '@/services/scoringEngine';
-import { rainbowScoringEngine, RAINBOW_COLORS } from '@/services/rainbowScoringEngine';
-import { GameState, ClassicScores, RainbowScores, HighScore, DiceColor } from '@/types/game';
-import { ChevronLeft, ChevronRight, Trophy, RotateCcw } from 'lucide-react';
+import {
+  rainbowScoringEngine,
+  RAINBOW_COLORS,
+} from '@/services/rainbowScoringEngine';
+import {
+  GameState,
+  ClassicScores,
+  RainbowScores,
+  HighScore,
+  DiceColor,
+} from '@/types/game';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Trophy,
+  RotateCcw,
+  Palette,
+} from 'lucide-react';
+import { DiceSkinModal } from '@/components/DiceSkinModal';
 import { useToast } from '@/hooks/use-toast';
 import { achievementService } from '@/services/achievementService';
 import { achievementEngine } from '@/services/achievementEngine';
@@ -68,7 +84,9 @@ const Game = () => {
         }
         // Generate new color for rolled dice
         if (gameState.mode === 'rainbow') {
-          return RAINBOW_COLORS[Math.floor(Math.random() * RAINBOW_COLORS.length)];
+          return RAINBOW_COLORS[
+            Math.floor(Math.random() * RAINBOW_COLORS.length)
+          ];
         }
         return 'neutral' as const;
       });
@@ -108,7 +126,10 @@ const Game = () => {
     gameService.saveCurrentGame(updatedState);
   };
 
-  const handleScoreSelect = (category: keyof (ClassicScores | RainbowScores), value: number) => {
+  const handleScoreSelect = (
+    category: keyof (ClassicScores | RainbowScores),
+    value: number
+  ) => {
     if (!turnState.hasRolled) return;
 
     const updatedPlayers = [...gameState.players];
@@ -127,17 +148,23 @@ const Game = () => {
     }
 
     // Check for bonus Yahtzee
-    if (gameState.mode === 'classic' && category === 'yahtzee' && value === 50 && player.classicScores.yahtzee === 50) {
+    if (
+      gameState.mode === 'classic' &&
+      category === 'yahtzee' &&
+      value === 50 &&
+      player.classicScores.yahtzee === 50
+    ) {
       player.classicScores.bonusYahtzees += 1;
       toast({
-        title: "Bonus Yahtzee! 🎉",
-        description: "+100 points!",
+        title: 'Bonus Yahtzee! 🎉',
+        description: '+100 points!',
       });
     }
 
     // Reset turn state for next player or next turn
-    const nextPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
-    
+    const nextPlayerIndex =
+      (gameState.currentPlayerIndex + 1) % gameState.players.length;
+
     const updatedState: GameState = {
       ...gameState,
       players: updatedPlayers,
@@ -146,9 +173,10 @@ const Game = () => {
         rollsLeft: 3,
         heldDice: [false, false, false, false, false],
         currentDice: [0, 0, 0, 0, 0],
-        currentColors: gameState.mode === 'rainbow'
-          ? ['red', 'blue', 'green', 'yellow', 'purple']
-          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        currentColors:
+          gameState.mode === 'rainbow'
+            ? ['red', 'blue', 'green', 'yellow', 'purple']
+            : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
         hasRolled: false,
       },
     };
@@ -164,25 +192,49 @@ const Game = () => {
   };
 
   const checkGameComplete = (state: GameState): boolean => {
-    return state.players.every(player => {
+    return state.players.every((player) => {
       if (state.mode === 'classic') {
         const scores = player.classicScores;
-        return scores.aces !== null && scores.twos !== null && scores.threes !== null &&
-               scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
-               scores.threeOfKind !== null && scores.fourOfKind !== null &&
-               scores.fullHouse !== null && scores.smallStraight !== null &&
-               scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null;
+        return (
+          scores.aces !== null &&
+          scores.twos !== null &&
+          scores.threes !== null &&
+          scores.fours !== null &&
+          scores.fives !== null &&
+          scores.sixes !== null &&
+          scores.threeOfKind !== null &&
+          scores.fourOfKind !== null &&
+          scores.fullHouse !== null &&
+          scores.smallStraight !== null &&
+          scores.largeStraight !== null &&
+          scores.yahtzee !== null &&
+          scores.chance !== null
+        );
       } else {
         const scores = player.rainbowScores;
-        return scores.aces !== null && scores.twos !== null && scores.threes !== null &&
-               scores.fours !== null && scores.fives !== null && scores.sixes !== null &&
-               scores.threeOfKind !== null && scores.fourOfKind !== null &&
-               scores.fullHouse !== null && scores.smallStraight !== null &&
-               scores.largeStraight !== null && scores.yahtzee !== null && scores.chance !== null &&
-               scores.allRed !== null && scores.allBlue !== null && scores.allGreen !== null &&
-               scores.allYellow !== null && scores.allPurple !== null &&
-               scores.threeColorMix !== null && scores.fourColorMix !== null &&
-               scores.rainbowBonus !== null;
+        return (
+          scores.aces !== null &&
+          scores.twos !== null &&
+          scores.threes !== null &&
+          scores.fours !== null &&
+          scores.fives !== null &&
+          scores.sixes !== null &&
+          scores.threeOfKind !== null &&
+          scores.fourOfKind !== null &&
+          scores.fullHouse !== null &&
+          scores.smallStraight !== null &&
+          scores.largeStraight !== null &&
+          scores.yahtzee !== null &&
+          scores.chance !== null &&
+          scores.allRed !== null &&
+          scores.allBlue !== null &&
+          scores.allGreen !== null &&
+          scores.allYellow !== null &&
+          scores.allPurple !== null &&
+          scores.threeColorMix !== null &&
+          scores.fourColorMix !== null &&
+          scores.rainbowBonus !== null
+        );
       }
     });
   };
@@ -190,14 +242,15 @@ const Game = () => {
   const nextPlayer = () => {
     if (turnState.hasRolled && turnState.rollsLeft < 3) {
       toast({
-        title: "Finish your turn",
-        description: "Please select a category to score",
-        variant: "destructive",
+        title: 'Finish your turn',
+        description: 'Please select a category to score',
+        variant: 'destructive',
       });
       return;
     }
 
-    const nextIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+    const nextIndex =
+      (gameState.currentPlayerIndex + 1) % gameState.players.length;
     const updatedState: GameState = {
       ...gameState,
       currentPlayerIndex: nextIndex,
@@ -205,9 +258,10 @@ const Game = () => {
         rollsLeft: 3,
         heldDice: [false, false, false, false, false],
         currentDice: [0, 0, 0, 0, 0],
-        currentColors: gameState.mode === 'rainbow'
-          ? ['red', 'blue', 'green', 'yellow', 'purple']
-          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        currentColors:
+          gameState.mode === 'rainbow'
+            ? ['red', 'blue', 'green', 'yellow', 'purple']
+            : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
         hasRolled: false,
       },
     };
@@ -218,16 +272,17 @@ const Game = () => {
   const prevPlayer = () => {
     if (turnState.hasRolled && turnState.rollsLeft < 3) {
       toast({
-        title: "Finish your turn",
-        description: "Please select a category to score",
-        variant: "destructive",
+        title: 'Finish your turn',
+        description: 'Please select a category to score',
+        variant: 'destructive',
       });
       return;
     }
 
-    const prevIndex = gameState.currentPlayerIndex === 0
-      ? gameState.players.length - 1
-      : gameState.currentPlayerIndex - 1;
+    const prevIndex =
+      gameState.currentPlayerIndex === 0
+        ? gameState.players.length - 1
+        : gameState.currentPlayerIndex - 1;
     const updatedState: GameState = {
       ...gameState,
       currentPlayerIndex: prevIndex,
@@ -235,9 +290,10 @@ const Game = () => {
         rollsLeft: 3,
         heldDice: [false, false, false, false, false],
         currentDice: [0, 0, 0, 0, 0],
-        currentColors: gameState.mode === 'rainbow'
-          ? ['red', 'blue', 'green', 'yellow', 'purple']
-          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        currentColors:
+          gameState.mode === 'rainbow'
+            ? ['red', 'blue', 'green', 'yellow', 'purple']
+            : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
         hasRolled: false,
       },
     };
@@ -252,27 +308,29 @@ const Game = () => {
         rollsLeft: 3,
         heldDice: [false, false, false, false, false],
         currentDice: [0, 0, 0, 0, 0],
-        currentColors: gameState.mode === 'rainbow'
-          ? ['red', 'blue', 'green', 'yellow', 'purple']
-          : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
+        currentColors:
+          gameState.mode === 'rainbow'
+            ? ['red', 'blue', 'green', 'yellow', 'purple']
+            : ['neutral', 'neutral', 'neutral', 'neutral', 'neutral'],
         hasRolled: false,
       },
     };
     setGameState(updatedState);
     gameService.saveCurrentGame(updatedState);
     toast({
-      title: "Turn Reset",
-      description: "Roll again to start fresh",
+      title: 'Turn Reset',
+      description: 'Roll again to start fresh',
     });
   };
 
   const finishGame = () => {
     const allUnlockedAchievements: any[] = [];
 
-    gameState.players.forEach(player => {
-      const score = gameState.mode === 'classic'
-        ? classicScoringEngine.calculateGrandTotal(player.classicScores)
-        : rainbowScoringEngine.calculateTotal(player.rainbowScores);
+    gameState.players.forEach((player) => {
+      const score =
+        gameState.mode === 'classic'
+          ? classicScoringEngine.calculateGrandTotal(player.classicScores)
+          : rainbowScoringEngine.calculateTotal(player.rainbowScores);
 
       const highScore: HighScore = {
         id: `score-${Date.now()}-${player.id}`,
@@ -280,17 +338,21 @@ const Game = () => {
         score,
         playerNames: [player.name],
         date: new Date().toISOString(),
-        // Include full scorecard data for detailed view
-        scorecard: gameState.mode === 'classic' ? player.classicScores : player.rainbowScores,
+        // Include full scorecard data for detailed view & achievements
+        scorecard:
+          gameState.mode === 'classic'
+            ? player.classicScores
+            : player.rainbowScores,
       };
 
       gameService.saveHighScore(highScore);
-      
+
       // Update all-time stats for achievement tracking
       achievementService.updateStatsAfterGame(highScore);
-      
+
       // Check for newly unlocked achievements
-      const unlockedAchievements = achievementEngine.checkAchievementsAfterGame(highScore);
+      const unlockedAchievements =
+        achievementEngine.checkAchievementsAfterGame(highScore);
       allUnlockedAchievements.push(...unlockedAchievements);
     });
 
@@ -302,7 +364,9 @@ const Game = () => {
         setTimeout(() => {
           toast({
             title: undefined,
-            description: <AchievementUnlockToast achievement={achievement} />,
+            description: (
+              <AchievementUnlockToast achievement={achievement} />
+            ),
             duration: 5000,
           });
         }, index * 600); // Stagger toasts
@@ -310,12 +374,15 @@ const Game = () => {
     }
 
     toast({
-      title: "Game Finished! 🎉",
-      description: allUnlockedAchievements.length > 0 
-        ? `${allUnlockedAchievements.length} achievement${allUnlockedAchievements.length > 1 ? 's' : ''} unlocked!`
-        : "Scores saved to High Scores",
+      title: 'Game Finished! 🎉',
+      description:
+        allUnlockedAchievements.length > 0
+          ? `${allUnlockedAchievements.length} achievement${
+              allUnlockedAchievements.length > 1 ? 's' : ''
+            } unlocked!`
+          : 'Scores saved to High Scores',
     });
-    
+
     navigate('/high-scores');
   };
 
@@ -329,13 +396,27 @@ const Game = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">
-                {gameState.mode === 'classic' ? 'Classic Yahtzee' : 'Rainbow Mode'}
+                {gameState.mode === 'classic'
+                  ? 'Classic Yahtzee'
+                  : 'Rainbow Mode'}
               </h1>
               <p className="text-sm text-gray-400">
-                {gameState.players.length} Player{gameState.players.length > 1 ? 's' : ''}
+                {gameState.players.length} Player
+                {gameState.players.length > 1 ? 's' : ''}
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <DiceSkinModal
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10"
+                  >
+                    <Palette className="w-4 h-4" />
+                  </Button>
+                }
+              />
               <Button
                 onClick={resetCurrentTurn}
                 variant="ghost"
@@ -360,16 +441,28 @@ const Game = () => {
         {/* Player Navigation */}
         {gameState.players.length > 1 && (
           <div className="flex items-center justify-between mb-6">
-            <Button onClick={prevPlayer} variant="outline" size="icon" className="border-gray-300">
+            <Button
+              onClick={prevPlayer}
+              variant="outline"
+              size="icon"
+              className="border-gray-300"
+            >
               <ChevronLeft className="w-5 h-5" />
             </Button>
             <div className="text-center">
-              <p className="text-sm text-gray-600 font-medium">Current Player</p>
+              <p className="text-sm text-gray-600 font-medium">
+                Current Player
+              </p>
               <p className="text-lg font-bold text-gray-900">
                 {currentPlayer.name}
               </p>
             </div>
-            <Button onClick={nextPlayer} variant="outline" size="icon" className="border-gray-300">
+            <Button
+              onClick={nextPlayer}
+              variant="outline"
+              size="icon"
+              className="border-gray-300"
+            >
               <ChevronRight className="w-5 h-5" />
             </Button>
           </div>
@@ -403,7 +496,9 @@ const Game = () => {
           <InteractiveRainbowScorecard
             scores={currentPlayer.rainbowScores}
             currentDice={turnState.currentDice}
-            currentColors={turnState.currentColors.filter((c): c is DiceColor => c !== 'neutral')}
+            currentColors={turnState.currentColors.filter(
+              (c): c is DiceColor => c !== 'neutral'
+            )}
             canScore={canScore}
             onScoreSelect={handleScoreSelect}
             playerName={currentPlayer.name}
@@ -419,12 +514,15 @@ const Game = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Finish Game?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will save all player scores to the High Scores page and end the current game.
+              This will save all player scores to the High Scores page and end
+              the current game.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={finishGame}>Finish & Save</AlertDialogAction>
+            <AlertDialogAction onClick={finishGame}>
+              Finish &amp; Save
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
