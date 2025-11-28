@@ -478,42 +478,73 @@ const Game = () => {
     });
   };
 
-  const finishGame = () => {
+    const finishGame = async () => {
     const allUnlockedAchievements: any[] = [];
 
-    gameState.players.forEach((player) => {
-      const score =
-        gameState.mode === 'classic'
-          ? classicScoringEngine.calculateGrandTotal(player.classicScores)
-          : rainbowScoringEngine.calculateTotal(player.rainbowScores);
-
-      const highScore: HighScore = {
-        id: `score-${Date.now()}-${player.id}`,
-        mode: gameState.mode,
-        score,
-        playerNames: [player.name],
-        date: new Date().toISOString(),
-        // Include full scorecard data for detailed view & achievements
-        scorecard:
+    await Promise.all(
+      gameState.players.map(async (player) => {
+        const score =
           gameState.mode === 'classic'
+            ? classicScoringEngine.calculateGrandTotal(player.classicScores)
+            : rainbowScoringEngine.calculateTotal(player.rainbowScores);
+
+        // Wrap scorecard like on the working branch
+        const scorecard = {
+          id: player.id,
+          ...(gameState.mode === 'classic'
             ? player.classicScores
-            : player.rainbowScores,
-      };
+            : player.rainbowScores),
+        };
 
-      gameService.saveHighScore(highScore);
+        const highScore: HighScore = {
+          id: `score-${Date.now()}-${player.id}`,
+          mode: gameState.mode,
+          score,
+          playerNames: [player.name],
+          scorecard,
+          date: new Date().toISOString(),
+        };
 
-      // Update all-time stats for achievement tracking
-      achievementService.updateStatsAfterGame(highScore);
+        // Save last game score for High Scores page (if you use it there)
+        localStorage.setItem(
+          'yahtzee_last_game_score',
+          JSON.stringify(highScore)
+        );
 
-      // Check for newly unlocked achievements
-      const unlockedAchievements =
-        achievementEngine.checkAchievementsAfterGame(highScore);
-      allUnlockedAchievements.push(...unlockedAchievements);
-    });
+        // Persist to whatever backing store gameService uses
+        await gameService.saveHighScore(highScore);
+
+        // Update all-time stats + achievements
+        achievementService.updateStatsAfterGame(highScore);
+        const unlocked = achievementEngine.checkAchievementsAfterGame(highScore);
+        allUnlockedAchievements.push(...unlocked);
+
+        // Update best score in localStorage allTimeStats (like the working branch)
+        const statsRaw = localStorage.getItem('yahtzee_all_time_stats');
+        const stats = statsRaw ? JSON.parse(statsRaw) : {};
+        if (gameState.mode === 'classic') {
+          if (!stats.bestClassicScore || score > stats.bestClassicScore) {
+            stats.bestClassicScore = score;
+            localStorage.setItem(
+              'yahtzee_all_time_stats',
+              JSON.stringify(stats)
+            );
+          }
+        } else if (gameState.mode === 'rainbow') {
+          if (!stats.bestRainbowScore || score > stats.bestRainbowScore) {
+            stats.bestRainbowScore = score;
+            localStorage.setItem(
+              'yahtzee_all_time_stats',
+              JSON.stringify(stats)
+            );
+          }
+        }
+      })
+    );
 
     gameService.clearCurrentGame();
 
-    // Show achievement unlock toasts
+    // Achievement toasts
     if (allUnlockedAchievements.length > 0) {
       allUnlockedAchievements.forEach((achievement, index) => {
         setTimeout(() => {
@@ -524,22 +555,34 @@ const Game = () => {
             ),
             duration: 5000,
           });
-        }, index * 600); // Stagger toasts
+        }, index * 600);
       });
     }
 
+    const scoresSummary = gameState.players
+      .map((player) =>
+        gameState.mode === 'classic'
+          ? classicScoringEngine.calculateGrandTotal(player.classicScores)
+          : rainbowScoringEngine.calculateTotal(player.rainbowScores)
+      )
+      .join(', ');
+
+    let achievementMsg = 'Scores saved to High Scores';
+    if (allUnlockedAchievements.length > 0) {
+      achievementMsg =
+        `${allUnlockedAchievements.length} achievement` +
+        (allUnlockedAchievements.length > 1 ? 's' : '') +
+        ' unlocked!';
+    }
+
     toast({
-      title: 'Game Finished! 🎉',
-      description:
-        allUnlockedAchievements.length > 0
-          ? `${allUnlockedAchievements.length} achievement${
-              allUnlockedAchievements.length > 1 ? 's' : ''
-            } unlocked!`
-          : 'Scores saved to High Scores',
+      title: `Score: ${scoresSummary} 🎉`,
+      description: achievementMsg,
     });
 
     navigate('/high-scores');
   };
+
 
   const canScore = turnState.hasRolled;
 
