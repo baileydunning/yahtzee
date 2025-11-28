@@ -95,7 +95,6 @@ export const Die = ({ value, color, isHeld, isRolling, onToggleHold, disabled }:
     if (currentSkin.id === 'neon-glow' || currentSkin.id === 'alien' || currentSkin.id === 'lava-core') {
       const glowColors: Record<string, string> = {
         'neon-glow': 'rgba(34, 211, 238, 0.8)',
-        'circuit-board': 'rgba(163, 230, 53, 0.6)',
         'alien': 'rgba(74, 222, 128, 0.6)',
         'lava-core': 'rgba(249, 115, 22, 0.6)',
       };
