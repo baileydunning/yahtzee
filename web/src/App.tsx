@@ -28,8 +28,8 @@ const App = () => (
             <Route path="/puzzles" element={<PuzzleList />} />
             <Route path="/puzzle/:puzzleId" element={<PuzzleGame />} />
             <Route path="/high-scores" element={<HighScoresPage />} />
-            <Route path="/stats" element={<StatsPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="/stats" element={<StatsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

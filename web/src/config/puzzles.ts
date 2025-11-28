@@ -125,8 +125,8 @@ export const PUZZLES: Puzzle[] = [
     },
     objective: {
       type: "score_at_least",
-      value: 60,
-      description: "Score at least 60 points across Small Straight and Chance",
+      value: 50,
+      description: "Score at least 50 points across Small Straight and Chance",
     },
   },
   {
