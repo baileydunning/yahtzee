@@ -72,6 +72,7 @@ export interface PuzzleProgress {
   bestScore: number | null;
   attempts: number;
   completedAt?: string;
+  isPerfect?: boolean;
 }
 
 export interface PuzzleState {
