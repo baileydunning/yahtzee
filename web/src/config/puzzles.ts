@@ -219,9 +219,9 @@ export const PUZZLES: Puzzle[] = [
     },
     objective: {
       type: "score_at_least",
-      value: 48,
+      value: 45,
       description:
-        "Score at least 48 total across Aces, Twos, Threes, and Chance",
+        "Score at least 45 total across Aces, Twos, Threes, and Chance",
     },
   },
   {
