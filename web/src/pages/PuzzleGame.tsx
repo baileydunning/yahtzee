@@ -5,14 +5,13 @@ import { Card } from '@/components/ui/card';
 import { Navigation } from '@/components/Navigation';
 import { PuzzleScorecard } from '@/components/PuzzleScorecard';
 import { PuzzleResultModal } from '@/components/PuzzleResultModal';
-import { Die } from '@/components/Die';
+import { DiceRoller } from '@/components/DiceRoller';
 import { PUZZLES } from '@/config/puzzles';
 import { puzzleService } from '@/services/puzzleService';
 import { RAINBOW_COLORS } from '@/services/rainbowScoringEngine';
 import { PuzzleProgress } from '@/types/puzzle';
 import { DiceColor } from '@/types/game';
 import { ArrowLeft, Lock, RotateCcw, Palette } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { achievementEngine } from '@/services/achievementEngine';
 import { achievementService } from '@/services/achievementService';
@@ -47,7 +46,7 @@ const PuzzleGame = () => {
     false,
     false,
     false,
-    false
+    false,
   ]);
   const [rollsThisTurn, setRollsThisTurn] = useState(0);
   const [hasRolled, setHasRolled] = useState(false);
@@ -199,7 +198,7 @@ const PuzzleGame = () => {
       toast({
         title: 'Locked Die',
         description: 'This die cannot be rerolled in this puzzle',
-        variant: 'destructive'
+        variant: 'destructive',
       });
       return;
     }
@@ -239,7 +238,7 @@ const PuzzleGame = () => {
       perfect:
         success &&
         requiredCategories.every((cat) => (newCompleted[cat] ?? 0) > 0) &&
-        updatedProgress?.attempts === 1
+        updatedProgress?.attempts === 1,
     });
 
     // 🔐 Puzzle achievements (category: 'puzzle' in ACHIEVEMENTS)
@@ -247,7 +246,7 @@ const PuzzleGame = () => {
       achievementEngine.checkAchievementsAfterPuzzle({
         mode: puzzle.gameMode,
         success,
-        attempts: updatedProgress?.attempts ?? 1
+        attempts: updatedProgress?.attempts ?? 1,
       });
 
     if (unlockedPuzzleAchievements.length > 0) {
@@ -256,7 +255,7 @@ const PuzzleGame = () => {
           toast({
             title: undefined,
             description: <AchievementUnlockToast achievement={achievement} />,
-            duration: 5000
+            duration: 5000,
           });
         }, index * 600);
       });
@@ -399,117 +398,19 @@ const PuzzleGame = () => {
           </div>
         </Card>
 
-        {/* Dice Roller */}
+        {/* Dice Roller – let the component own its card, indicators, and button */}
         <div className="mb-6">
-          <Card className="p-6 bg-white border-2 border-gray-200">
-            <div className="flex flex-col items-center gap-6">
-              {/* Rolls remaining indicator */}
-              <div className="text-center">
-                <p className="text-sm text-gray-600 mb-2 font-medium">
-                  Rolls This Turn
-                </p>
-                <div className="flex gap-2 justify-center">
-                  {[...Array(MAX_ROLLS_PER_TURN)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        'w-3 h-3 rounded-full transition-colors',
-                        i < rollsThisTurn ? 'bg-gray-900' : 'bg-gray-300'
-                      )}
-                    />
-                  ))}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {rollsLeft} roll{rollsLeft !== 1 ? 's' : ''} left
-                </p>
-              </div>
-
-              {/* Dice display: 3+2 grid on mobile, 5-across on desktop */}
-              <div className="mb-2">
-                {/* Mobile: 3+2 grid */}
-                <div className="grid grid-cols-3 gap-4 justify-items-center sm:hidden">
-                  {[0, 1, 2].map((index) => {
-                    const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
-                    return (
-                      <div key={index} className="relative w-14 h-14 flex-shrink-0">
-                        <DieWithLock
-                          value={currentDice[index]}
-                          color={currentColors[index]}
-                          isHeld={heldDice[index]}
-                          isLocked={isLocked}
-                          isRolling={isRolling}
-                          onToggleHold={() => toggleHold(index)}
-                          disabled={isRolling || isPuzzleOver}
-                        />
-                      </div>
-                    );
-                  })}
-                  <div className="col-span-3 flex justify-center gap-4">
-                    {[3, 4].map((index) => {
-                      const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
-                      return (
-                        <div key={index} className="relative w-14 h-14 flex-shrink-0">
-                          <DieWithLock
-                            value={currentDice[index]}
-                            color={currentColors[index]}
-                            isHeld={heldDice[index]}
-                            isLocked={isLocked}
-                            isRolling={isRolling}
-                            onToggleHold={() => toggleHold(index)}
-                            disabled={isRolling || isPuzzleOver}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-                {/* Desktop: 5-across row */}
-                <div className="hidden sm:flex justify-center gap-4">
-                  {[0, 1, 2, 3, 4].map((index) => {
-                    const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
-                    return (
-                      <div key={index} className="relative w-14 h-14 flex-shrink-0">
-                        <DieWithLock
-                          value={currentDice[index]}
-                          color={currentColors[index]}
-                          isHeld={heldDice[index]}
-                          isLocked={isLocked}
-                          isRolling={isRolling}
-                          onToggleHold={() => toggleHold(index)}
-                          disabled={isRolling || isPuzzleOver}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Roll button */}
-              <Button
-                onClick={rollDice}
-                disabled={rollsLeft === 0 || isRolling || isPuzzleOver}
-                size="lg"
-                className="w-full max-w-xs h-14 text-lg bg-gray-900 hover:bg-gray-800 text-white"
-              >
-                {rollsLeft === 0 ? 'No Rolls Left' : `Roll (${rollsLeft} left)`}
-              </Button>
-
-              {hasRolled && rollsLeft > 0 && !isPuzzleOver && (
-                <p className="text-sm text-gray-600 text-center font-medium">
-                  Tap dice to hold, then roll again
-                </p>
-              )}
-
-              {(rollsLeft === 0 || hasRolled) &&
-                !allCategoriesComplete &&
-                !isPuzzleOver && (
-                  <p className="text-sm font-semibold text-gray-900 text-center">
-                    Select a category below to{' '}
-                    {isMultiCategory ? 'score' : 'complete the puzzle'}
-                  </p>
-                )}
-            </div>
-          </Card>
+          <DiceRoller
+            mode={puzzle.gameMode}
+            dice={currentDice}
+            colors={currentColors}
+            heldDice={heldDice}
+            rollsLeft={rollsLeft}
+            isRolling={isRolling}
+            hasRolled={hasRolled}
+            onRoll={rollDice}
+            onToggleHold={toggleHold}
+          />
         </div>
 
         {/* Puzzle Scorecard - Only shows required categories */}
@@ -544,43 +445,6 @@ const PuzzleGame = () => {
       />
 
       <Navigation />
-    </div>
-  );
-};
-
-// Die component with lock indicator
-const DieWithLock = ({
-  value,
-  color,
-  isHeld,
-  isLocked,
-  isRolling,
-  onToggleHold,
-  disabled
-}: {
-  value: number;
-  color: DiceColor | 'neutral';
-  isHeld: boolean;
-  isLocked?: boolean;
-  isRolling: boolean;
-  onToggleHold: () => void;
-  disabled: boolean;
-}) => {
-  return (
-    <div className="relative">
-      <Die
-        value={value}
-        color={color}
-        isHeld={isHeld || !!isLocked}
-        isRolling={isRolling}
-        onToggleHold={onToggleHold}
-        disabled={disabled || !!isLocked}
-      />
-      {isLocked && (
-        <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center shadow-md">
-          <Lock className="w-3 h-3 text-white" />
-        </div>
-      )}
     </div>
   );
 };
