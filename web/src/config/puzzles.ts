@@ -884,8 +884,7 @@ export const PUZZLES: Puzzle[] = [
     gameMode: "rainbow",
     difficulty: "expert",
     tags: ["multi_category", "color_mix", "rainbow", "expert"],
-    initialDice: [1, 2, 3, 4, 5],
-    initialColors: ["red", "blue", "green", "green", "purple"],
+    initialDice: [],
     constraints: {
       requiredCategories: ["threeColorMix", "fourColorMix", "rainbowBonus"],
     },
@@ -942,8 +941,7 @@ export const PUZZLES: Puzzle[] = [
     gameMode: "rainbow",
     difficulty: "medium",
     tags: ["multi_category", "color_mix"],
-    initialDice: [1, 2, 3, 4, 5],
-    initialColors: ["red", "blue", "green", "green", "blue"],
+    initialDice: [],
     constraints: {
       requiredCategories: ["threeColorMix", "fourColorMix"],
     },
