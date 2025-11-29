@@ -424,31 +424,51 @@ const PuzzleGame = () => {
                 </p>
               </div>
 
-              {/* Dice display: 3+2 grid layout for 5 dice */}
-              <div className="grid grid-cols-3 gap-4 mb-2 justify-items-center">
-                {/* Top row: dice 0, 1, 2 */}
-                {[0, 1, 2].map((index) => {
-                  const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
-                  return (
-                    <div key={index} className="relative">
-                      <DieWithLock
-                        value={currentDice[index]}
-                        color={currentColors[index]}
-                        isHeld={heldDice[index]}
-                        isLocked={isLocked}
-                        isRolling={isRolling}
-                        onToggleHold={() => toggleHold(index)}
-                        disabled={isRolling || isPuzzleOver}
-                      />
-                    </div>
-                  );
-                })}
-                {/* Bottom row: dice 3 and 4, centered under grid */}
-                <div className="col-span-3 flex justify-center gap-4">
-                  {[3, 4].map((index) => {
+              {/* Dice display: 3+2 grid on mobile, 5-across on desktop */}
+              <div className="mb-2">
+                {/* Mobile: 3+2 grid */}
+                <div className="grid grid-cols-3 gap-4 justify-items-center sm:hidden">
+                  {[0, 1, 2].map((index) => {
                     const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
                     return (
-                      <div key={index} className="relative">
+                      <div key={index} className="relative w-14 h-14 flex-shrink-0">
+                        <DieWithLock
+                          value={currentDice[index]}
+                          color={currentColors[index]}
+                          isHeld={heldDice[index]}
+                          isLocked={isLocked}
+                          isRolling={isRolling}
+                          onToggleHold={() => toggleHold(index)}
+                          disabled={isRolling || isPuzzleOver}
+                        />
+                      </div>
+                    );
+                  })}
+                  <div className="col-span-3 flex justify-center gap-4">
+                    {[3, 4].map((index) => {
+                      const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
+                      return (
+                        <div key={index} className="relative w-14 h-14 flex-shrink-0">
+                          <DieWithLock
+                            value={currentDice[index]}
+                            color={currentColors[index]}
+                            isHeld={heldDice[index]}
+                            isLocked={isLocked}
+                            isRolling={isRolling}
+                            onToggleHold={() => toggleHold(index)}
+                            disabled={isRolling || isPuzzleOver}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Desktop: 5-across row */}
+                <div className="hidden sm:flex justify-center gap-4">
+                  {[0, 1, 2, 3, 4].map((index) => {
+                    const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
+                    return (
+                      <div key={index} className="relative w-14 h-14 flex-shrink-0">
                         <DieWithLock
                           value={currentDice[index]}
                           color={currentColors[index]}
