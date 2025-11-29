@@ -817,6 +817,30 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
 },
 {
+  id: 'puzzle-pro',
+  title: 'Puzzle Pro',
+  description: 'Solve 25 puzzles',
+  category: 'puzzle',
+  modes: ['classic', 'rainbow'],
+  icon: '🙌',
+  target: 25,
+  checkCondition: (ctx: AchievementContext) => {
+    return ctx.allTimeStats.puzzlesSolved ?? 0;
+  },
+},
+{
+  id: 'puzzle-savant',
+  title: 'Puzzle Savant',
+  description: 'Solve 40 puzzles',
+  category: 'puzzle',
+  modes: ['classic', 'rainbow'],
+  icon: '🤩',
+  target: 40,
+  checkCondition: (ctx: AchievementContext) => {
+    return ctx.allTimeStats.puzzlesSolved ?? 0;
+  },
+},
+{
   id: 'puzzle-tenacious',
   title: 'Tenacious Solver',
   description: 'Finally clear a puzzle after 10+ attempts on the same puzzle',
@@ -829,44 +853,15 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
 },
 {
-  id: 'puzzle-first-try',
-  title: 'First-Try Finish',
-  description: 'Complete a puzzle with a perfect solve',
+  id: 'puzzle-unbreakable',
+  title: 'Unbreakable Solver',
+  description: 'Finally clear a puzzle after 20+ attempts on the same puzzle',
   category: 'puzzle',
   modes: ['classic', 'rainbow'],
-  icon: '1️⃣',
+  icon: '🪨',
   checkCondition: (ctx: AchievementContext) => {
-    // Using puzzlePerfects ≥ 1 as your “special” first milestone
-    const perfects = ctx.allTimeStats.puzzlePerfects ?? 0;
-    return perfects >= 1;
-  },
-},
-{
-  id: 'puzzle-perfect-five',
-  title: 'Perfect Puzzler',
-  description: 'Complete 5 puzzles with perfect solves',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '💡',
-  target: 5,
-      checkCondition: (ctx: AchievementContext) => {
-        // Count puzzles completed with perfect solves (isPerfect === true)
-        if (!ctx.puzzleProgress || typeof ctx.puzzleProgress !== 'object') return 0;
-        const progressArr = Object.values(ctx.puzzleProgress);
-        const perfectCount = progressArr.filter((p: any) => p.isPerfect === true).length;
-        return perfectCount;
-      },
-},
-{
-  id: 'puzzle-veteran',
-  title: 'Puzzle Veteran',
-  description: 'Solve 25 puzzles',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '🙌',
-  target: 25,
-  checkCondition: (ctx: AchievementContext) => {
-    return ctx.allTimeStats.puzzlesSolved ?? 0;
+    if (!ctx.puzzleSuccess) return false;
+    return (ctx.puzzleAttempts ?? 0) >= 20;
   },
 },
 ];

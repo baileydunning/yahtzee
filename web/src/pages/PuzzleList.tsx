@@ -7,14 +7,14 @@ import { Navigation } from '@/components/Navigation';
 import { PUZZLES, getDifficultyColor, getDifficultyOrder } from '@/config/puzzles';
 import { puzzleService } from '@/services/puzzleService';
 import { Puzzle, PuzzleFilterMode, PuzzleSortOption } from '@/types/puzzle';
-import { 
-  Puzzle as PuzzleIcon, 
-  CheckCircle, 
+import {
+  Puzzle as PuzzleIcon,
+  CheckCircle,
   Play,
   Filter,
   ArrowUpDown,
   ChevronRight,
-  Home
+  Home,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -37,6 +37,8 @@ const PuzzleList = () => {
   const [filterMode, setFilterMode] = useState<PuzzleFilterMode>('all');
   const [sortBy, setSortBy] = useState<PuzzleSortOption>('difficulty');
   const [selectedPuzzle, setSelectedPuzzle] = useState<Puzzle | null>(null);
+  const [completionFilter, setCompletionFilter] = useState<'all' | 'unsolved' | 'completed'>('all');
+  const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard' | 'expert'>('all');
 
   const progress = puzzleService.getAllProgress();
 
@@ -48,22 +50,32 @@ const PuzzleList = () => {
       filtered = filtered.filter((p) => p.gameMode === filterMode);
     }
 
+    // Filter by difficulty
+    if (difficultyFilter !== 'all') {
+      filtered = filtered.filter((p) => p.difficulty === difficultyFilter);
+    }
+
+    // Filter by completion status
+    if (completionFilter !== 'all') {
+      filtered = filtered.filter((p) => {
+        const isCompleted = progress[p.id]?.isCompleted;
+        if (completionFilter === 'completed') return !!isCompleted;
+        if (completionFilter === 'unsolved') return !isCompleted;
+        return true;
+      });
+    }
+
     // Sort
     return [...filtered].sort((a, b) => {
       if (sortBy === 'difficulty') {
         return getDifficultyOrder(a.difficulty) - getDifficultyOrder(b.difficulty);
-      }
-      if (sortBy === 'completion') {
-        const aCompleted = progress[a.id]?.isCompleted ? 1 : 0;
-        const bCompleted = progress[b.id]?.isCompleted ? 1 : 0;
-        return bCompleted - aCompleted; // Completed first
       }
       if (sortBy === 'title') {
         return a.title.localeCompare(b.title);
       }
       return 0;
     });
-  }, [filterMode, sortBy, progress]);
+  }, [filterMode, difficultyFilter, sortBy, completionFilter, progress]);
 
   const stats = useMemo(() => {
     const classicPuzzles = PUZZLES.filter((p) => p.gameMode === 'classic');
@@ -139,7 +151,8 @@ const PuzzleList = () => {
         </Card>
 
         {/* Filters */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6 items-center">
+          {/* Mode filter */}
           <Select
             value={filterMode}
             onValueChange={(v) => setFilterMode(v as PuzzleFilterMode)}
@@ -149,24 +162,47 @@ const PuzzleList = () => {
               <SelectValue placeholder="Mode" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Modes</SelectItem>
+              <SelectItem value="all">All modes</SelectItem>
               <SelectItem value="classic">Classic</SelectItem>
               <SelectItem value="rainbow">Rainbow</SelectItem>
             </SelectContent>
           </Select>
 
+          {/* Difficulty filter */}
           <Select
-            value={sortBy}
-            onValueChange={(v) => setSortBy(v as PuzzleSortOption)}
+            value={difficultyFilter}
+            onValueChange={(v) =>
+              setDifficultyFilter(v as 'all' | 'easy' | 'medium' | 'hard' | 'expert')
+            }
           >
-            <SelectTrigger className="w-[140px]">
-              <ArrowUpDown className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="Sort by" />
+            <SelectTrigger className="w-[160px]">
+              <PuzzleIcon className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="difficulty">Difficulty</SelectItem>
-              <SelectItem value="completion">Completion</SelectItem>
-              <SelectItem value="title">Title</SelectItem>
+              <SelectItem value="all">All difficulties</SelectItem>
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="hard">Hard</SelectItem>
+              <SelectItem value="expert">Expert</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Completion status filter */}
+          <Select
+            value={completionFilter}
+            onValueChange={(v) =>
+              setCompletionFilter(v as 'all' | 'unsolved' | 'completed')
+            }
+          >
+            <SelectTrigger className="w-[170px]">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All puzzles</SelectItem>
+              <SelectItem value="completed">Solved</SelectItem>
+              <SelectItem value="unsolved">Unsolved</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -353,7 +389,7 @@ const PuzzleList = () => {
                     {/* Setup / Starting State */}
                     <Card className="p-4">
                       <h4 className="font-semibold text-foreground mb-3">
-                        Starting Setup
+                        Starting setup
                       </h4>
 
                       {!hasInitialDice && !hasInitialColors && (
@@ -367,10 +403,10 @@ const PuzzleList = () => {
                           {hasInitialDice && (
                             <div>
                               <p className="text-xs text-muted-foreground mb-1">
-                                Initial Dice
+                                Initial dice
                               </p>
                               <div className="flex gap-1">
-                                {selectedPuzzle.initialDice.map((die, i) => (
+                                {selectedPuzzle.initialDice!.map((die, i) => (
                                   <div
                                     key={i}
                                     className="w-8 h-8 rounded-md border flex items-center justify-center text-sm font-semibold bg-background"
@@ -386,7 +422,7 @@ const PuzzleList = () => {
                             hasInitialColors && (
                               <div>
                                 <p className="text-xs text-muted-foreground mb-1">
-                                  Initial Colors
+                                  Initial colors
                                 </p>
                                 <div className="flex gap-1">
                                   {selectedPuzzle.initialColors!.map(
@@ -409,7 +445,7 @@ const PuzzleList = () => {
                     {/* Progress */}
                     <Card className="p-4 bg-muted/40">
                       <h4 className="font-semibold text-foreground mb-2">
-                        Your Progress
+                        Your progress
                       </h4>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
@@ -422,7 +458,7 @@ const PuzzleList = () => {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Best Score
+                            Best score
                           </p>
                           <p className="font-semibold">
                             {typeof selectedProgress?.bestScore === 'number'
@@ -440,7 +476,7 @@ const PuzzleList = () => {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Last Completed
+                            Last completed
                           </p>
                           <p className="font-semibold">
                             {selectedProgress?.completedAt
