@@ -430,7 +430,7 @@ export const PUZZLES: Puzzle[] = [
       type: "score_at_least",
       value: 63,
       description:
-        "Score at least 63 total in the Upper Section (reach the upper bonus)",
+        "Score at least 63 total in the Upper Section (reach the upper bonus without scoring any zeroes)",
     },
   },
   {
@@ -493,10 +493,10 @@ export const PUZZLES: Puzzle[] = [
       requiredCategories: ["smallStraight", "largeStraight"],
     },
     objective: {
-      type: "score_at_least",
+      type: "score_exactly",
       value: 70,
       description:
-        "Score at least 70 points across Small Straight and Large Straight",
+        "Score 70 points across Small Straight and Large Straight",
     },
   },
   {
@@ -506,7 +506,7 @@ export const PUZZLES: Puzzle[] = [
     gameMode: "classic",
     difficulty: "expert",
     tags: ["multi_category", "expert"],
-    initialDice: [2, 3, 4, 5, 5],
+    initialDice: [],
     constraints: {
       requiredCategories: ["largeStraight", "smallStraight", "yahtzee"],
     },
@@ -540,7 +540,7 @@ export const PUZZLES: Puzzle[] = [
     gameMode: "classic",
     difficulty: "medium",
     tags: ["multi_category", "of_a_kind"],
-    initialDice: [4, 4, 4, 2, 1],
+    initialDice: [],
     constraints: {
       requiredCategories: ["threeOfKind", "fourOfKind"],
     },
@@ -716,7 +716,7 @@ export const PUZZLES: Puzzle[] = [
       requiredCategories: ["allBlue", "largeStraight"],
     },
     objective: {
-      type: "score_at_least",
+      type: "score_exactly",
       value: 90,
       description: "Score Large Straight (40) and reach 50+ from All Blue",
     },
@@ -739,6 +739,24 @@ export const PUZZLES: Puzzle[] = [
       description: "Score Four-Color Mix (exactly 4 different colors)",
     },
   },
+  {
+    id: "rainbow-medium-8",
+    title: "Final Color",
+    description: "A near-rainbow roll—can you perfect it?",
+    gameMode: "rainbow",
+    difficulty: "medium",
+    tags: ["rainbow", "medium"],
+    initialDice: [1, 2, 3, 4, 5],
+    initialColors: ["red", "blue", "green", "green", "green"],
+    constraints: {
+      requiredCategories: ["rainbowBonus"],
+    },
+    objective: {
+      type: "color_objective",
+      value: "rainbowBonus",
+      description: "Score Rainbow Bonus from this setup",
+    },
+  },
 
   // =====================
   // RAINBOW – HARD
@@ -746,7 +764,7 @@ export const PUZZLES: Puzzle[] = [
   {
     id: "rainbow-hard-1",
     title: "Green Board",
-    description: "You have a few greens—push it all the way!",
+    description: "You have a couple greens—push it all the way!",
     gameMode: "rainbow",
     difficulty: "hard",
     tags: ["all_color"],
@@ -773,9 +791,9 @@ export const PUZZLES: Puzzle[] = [
       requiredCategories: ["rainbowBonus"],
     },
     objective: {
-      type: "score_at_least",
-      value: 40,
-      description: "Score at least 40 from Rainbow Bonus and supporting dice",
+      type: "score_exactly",
+      value: 50,
+      description: "Score exactly 50 from Rainbow Bonus",
     },
   },
   {
@@ -786,7 +804,7 @@ export const PUZZLES: Puzzle[] = [
     gameMode: "rainbow",
     difficulty: "hard",
     tags: ["multi_category", "all_color", "chance"],
-    initialDice: [2, 3, 4, 5, 6],
+    initialDice: [1, 1, 1, 1, 1],
     initialColors: ["red", "green", "red", "green", "yellow"],
     constraints: {
       requiredCategories: ["allRed", "allGreen", "chance"],
@@ -798,10 +816,10 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
-    id: "rainbow-hard-upper-spectrum",
-    title: "Upper Spectrum",
+    id: "rainbow-hard-purple-reign",
+    title: "Purple Reign",
     description:
-      "Hit the Upper Bonus while also completing one full color board. Number precision meets color mastery.",
+      "Hit the Upper Bonus while also scoring All Purple. Number precision meets color mastery.",
     gameMode: "rainbow",
     difficulty: "hard",
     tags: ["multi_category", "upper_section", "all_color", "strategy"],
@@ -814,10 +832,6 @@ export const PUZZLES: Puzzle[] = [
         "fours",
         "fives",
         "sixes",
-        "allRed",
-        "allBlue",
-        "allGreen",
-        "allYellow",
         "allPurple",
       ],
     },
@@ -825,7 +839,7 @@ export const PUZZLES: Puzzle[] = [
       type: "score_at_least",
       value: 113,
       description:
-        "Reach the Upper Bonus (63+) AND finish any one All-Color category",
+        "Reach the Upper Bonus (63+) AND score all Purple (50 points)",
     },
   },
   {
@@ -839,11 +853,8 @@ export const PUZZLES: Puzzle[] = [
     initialDice: [],
     constraints: {
       requiredCategories: [
-        "allRed",
-        "allBlue",
-        "allGreen",
-        "allYellow",
-        "allPurple",
+        "smallStraight",
+        "chance",
         "threeColorMix",
         "fourColorMix",
         "rainbowBonus",
@@ -852,31 +863,13 @@ export const PUZZLES: Puzzle[] = [
     objective: {
       type: "score_at_least",
       value: 150,
-      description: "Score in at least four different rainbow-specific categories",
+      description: "Score at least 150 total across the required categories",
     },
   },
 
   // =====================
   // RAINBOW – EXPERT
   // =====================
-  {
-    id: "rainbow-expert-1",
-    title: "Final Color",
-    description: "A near-rainbow roll—can you perfect it?",
-    gameMode: "rainbow",
-    difficulty: "expert",
-    tags: ["rainbow", "expert"],
-    initialDice: [1, 2, 3, 4, 5],
-    initialColors: ["red", "blue", "green", "green", "green"],
-    constraints: {
-      requiredCategories: ["rainbowBonus"],
-    },
-    objective: {
-      type: "color_objective",
-      value: "rainbowBonus",
-      description: "Score Rainbow Bonus from this setup",
-    },
-  },
   {
     id: "rainbow-expert-2",
     title: "Spectrum Trial",
