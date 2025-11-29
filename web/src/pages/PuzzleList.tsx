@@ -506,6 +506,25 @@ const PuzzleList = () => {
       </Sheet>
 
       <Navigation />
+
+      {/* Clear Puzzle Progress Button */}
+      <div className="flex justify-center mt-8 mb-4">
+        <button
+          className="px-4 py-2 border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium shadow"
+          onClick={() => {
+            if (
+              globalThis.confirm(
+                'Are you sure you want to clear all puzzle progress? This cannot be undone.'
+              )
+            ) {
+              puzzleService.clearAllProgress();
+              navigate('/')
+            }
+          }}
+        >
+          Clear Puzzle Progress
+        </button>
+      </div>
     </div>
   );
 };
