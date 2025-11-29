@@ -424,15 +424,15 @@ const PuzzleGame = () => {
                 </p>
               </div>
 
-              {/* Dice display */}
-              <div className="flex flex-wrap justify-center gap-4 mb-2">
-                {currentDice.map((value, index) => {
-                  const isLocked =
-                    puzzle.constraints.lockedDiceIndices?.includes(index);
+              {/* Dice display: 3+2 grid layout for 5 dice */}
+              <div className="grid grid-cols-3 gap-4 mb-2 justify-items-center">
+                {/* Top row: dice 0, 1, 2 */}
+                {[0, 1, 2].map((index) => {
+                  const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
                   return (
                     <div key={index} className="relative">
                       <DieWithLock
-                        value={value}
+                        value={currentDice[index]}
                         color={currentColors[index]}
                         isHeld={heldDice[index]}
                         isLocked={isLocked}
@@ -443,6 +443,25 @@ const PuzzleGame = () => {
                     </div>
                   );
                 })}
+                {/* Bottom row: dice 3 and 4, centered under grid */}
+                <div className="col-span-3 flex justify-center gap-4">
+                  {[3, 4].map((index) => {
+                    const isLocked = puzzle.constraints.lockedDiceIndices?.includes(index);
+                    return (
+                      <div key={index} className="relative">
+                        <DieWithLock
+                          value={currentDice[index]}
+                          color={currentColors[index]}
+                          isHeld={heldDice[index]}
+                          isLocked={isLocked}
+                          isRolling={isRolling}
+                          onToggleHold={() => toggleHold(index)}
+                          disabled={isRolling || isPuzzleOver}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Roll button */}

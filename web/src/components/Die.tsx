@@ -123,7 +123,6 @@ export const Die = ({ value, color, isHeld, isRolling, onToggleHold, disabled }:
       'holographic': 'bg-purple-400 text-white',
       'lava-core': 'bg-orange-500 text-gray-900',
       'alien': 'bg-green-400 text-gray-900',
-      'circuit-board': 'bg-lime-400 text-gray-900',
     };
     return skinBadgeStyles[currentSkin.id] || 'bg-gray-900 text-white';
   };
