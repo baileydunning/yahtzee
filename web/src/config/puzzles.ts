@@ -564,9 +564,9 @@ export const PUZZLES: Puzzle[] = [
     },
     objective: {
       type: "score_at_least",
-      value: 80,
+      value: 66,
       description:
-        "Score at least 80 total across Three of a Kind, Four of a Kind, and Chance",
+        "Score at least 66 total across Three of a Kind, Four of a Kind, and Chance",
     },
   },
 
