@@ -923,8 +923,7 @@ export const PUZZLES: Puzzle[] = [
     gameMode: "rainbow",
     difficulty: "expert",
     tags: ["multi_category", "rainbow", "yahtzee"],
-    initialDice: [3, 3, 3, 4, 5],
-    initialColors: ["red", "blue", "green", "yellow", "purple"],
+    initialDice: [],
     constraints: {
       requiredCategories: ["rainbowBonus", "yahtzee"],
     },
