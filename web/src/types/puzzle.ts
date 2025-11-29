@@ -4,6 +4,7 @@ export type PuzzleDifficulty = 'easy' | 'medium' | 'hard' | 'expert';
 
 export type PuzzleObjectiveType =
   | 'score_at_least'           // Sum of required categories must reach at least X
+  | 'score_exactly'            // Sum of required categories must be exactly X
   | 'specific_category'        // Score > 0 in a specific category
   | 'category_minimum'         // Score at least X in a specific category
   | 'multiple_categories'      // Score > 0 in all listed categories

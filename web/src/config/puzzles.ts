@@ -470,7 +470,7 @@ export const PUZZLES: Puzzle[] = [
       requiredCategories: ["aces", "threeOfKind", "chance"],
     },
     objective: {
-      type: "score_at_least",
+      type: "score_exactly",
       value: 42,
       description:
         "Finish with exactly 42 points combined across Three of a Kind and Chance",

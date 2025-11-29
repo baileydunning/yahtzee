@@ -305,6 +305,12 @@ const PuzzleGame = () => {
           0
         );
         success = totalScore >= (puzzle.objective.value as number);
+      } else if (puzzle.objective.type === 'score_exactly') {
+        const totalScore = Object.values(newCompleted).reduce(
+          (sum, val) => sum + val,
+          0
+        );
+        success = totalScore === (puzzle.objective.value as number);
       } else {
         // specific_category, multiple_categories, color_objective:
         // all required categories must be scored > 0
