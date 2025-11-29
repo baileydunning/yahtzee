@@ -15,6 +15,7 @@ import {
   ArrowUpDown,
   ChevronRight,
   Home,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -38,9 +39,12 @@ const PuzzleList = () => {
   const [sortBy, setSortBy] = useState<PuzzleSortOption>('difficulty');
   const [selectedPuzzle, setSelectedPuzzle] = useState<Puzzle | null>(null);
   const [completionFilter, setCompletionFilter] = useState<'all' | 'unsolved' | 'completed'>('all');
-  const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard' | 'expert'>('all');
+  const [difficultyFilter, setDifficultyFilter] = useState<
+    'all' | 'easy' | 'medium' | 'hard' | 'expert'
+  >('all');
 
-  const progress = puzzleService.getAllProgress();
+  // Progress stored in state so UI updates when we clear/reset
+  const [progress, setProgress] = useState(() => puzzleService.getAllProgress());
 
   const filteredAndSortedPuzzles = useMemo(() => {
     let filtered = PUZZLES;
@@ -97,6 +101,17 @@ const PuzzleList = () => {
 
   const handlePlayPuzzle = (puzzle: Puzzle) => {
     navigate(`/puzzle/${puzzle.id}`);
+  };
+
+  const handleClearSinglePuzzle = (puzzleId: string) => {
+    if (
+      window.confirm(
+        'Clear progress for this puzzle? This will reset attempts, best score, and completion status.'
+      )
+    ) {
+      puzzleService.resetProgress(puzzleId);
+      setProgress(puzzleService.getAllProgress());
+    }
   };
 
   const formatDate = (value?: string) =>
@@ -172,7 +187,9 @@ const PuzzleList = () => {
           <Select
             value={difficultyFilter}
             onValueChange={(v) =>
-              setDifficultyFilter(v as 'all' | 'easy' | 'medium' | 'hard' | 'expert')
+              setDifficultyFilter(
+                v as 'all' | 'easy' | 'medium' | 'hard' | 'expert'
+              )
             }
           >
             <SelectTrigger className="w-[160px]">
@@ -485,6 +502,17 @@ const PuzzleList = () => {
                           </p>
                         </div>
                       </div>
+
+                      {/* Clear progress for this puzzle */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4 w-full border-red-200 text-red-700 hover:bg-red-50"
+                        onClick={() => handleClearSinglePuzzle(selectedPuzzle.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Clear progress for this puzzle
+                      </Button>
                     </Card>
                   </div>
 
@@ -507,22 +535,23 @@ const PuzzleList = () => {
 
       <Navigation />
 
-      {/* Clear Puzzle Progress Button */}
+      {/* Clear all puzzle progress button */}
       <div className="flex justify-center mt-8 mb-4">
         <button
           className="px-4 py-2 border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium shadow"
           onClick={() => {
             if (
-              globalThis.confirm(
-                'Are you sure you want to clear all puzzle progress? This cannot be undone.'
+              window.confirm(
+                'Are you sure you want to clear ALL puzzle progress? This cannot be undone.'
               )
             ) {
               puzzleService.clearAllProgress();
-              navigate('/')
+              setProgress(puzzleService.getAllProgress());
+              setSelectedPuzzle(null);
             }
           }}
         >
-          Clear Puzzle Progress
+          Clear All Puzzle Progress
         </button>
       </div>
     </div>
