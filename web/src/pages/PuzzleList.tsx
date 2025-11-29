@@ -12,7 +12,6 @@ import {
   CheckCircle,
   Play,
   Filter,
-  ArrowUpDown,
   ChevronRight,
   Home,
   Trash2,
