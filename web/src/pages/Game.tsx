@@ -639,7 +639,7 @@ const Game = () => {
                     prev === 'split' ? 'stacked' : 'split'
                   )
                 }
-                className={`text-white hover:bg-white/10 ${
+                className={`hidden sm:block text-white hover:bg-white/10 ${
                   layoutMode === 'split' ? 'bg-white/10' : ''
                 }`}
                 title={
