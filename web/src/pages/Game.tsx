@@ -25,6 +25,7 @@ import {
   Trophy,
   RotateCcw,
   Palette,
+  LayoutPanelLeft,
 } from 'lucide-react';
 import { DiceSkinModal } from '@/components/DiceSkinModal';
 import { useToast } from '@/hooks/use-toast';
@@ -42,12 +43,20 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+type LayoutMode = 'split' | 'stacked';
+
 const Game = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
   const [isRolling, setIsRolling] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>(() => {
+    if (typeof window === 'undefined') return 'split';
+    const stored = window.localStorage.getItem('yahtzee_layout_mode');
+    return stored === 'stacked' || stored === 'split' ? stored : 'split';
+  });
 
   useEffect(() => {
     const currentGame = gameService.getCurrentGame();
@@ -57,6 +66,12 @@ const Game = () => {
       setGameState(currentGame);
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('yahtzee_layout_mode', layoutMode);
+    }
+  }, [layoutMode]);
 
   if (!gameState) return null;
 
@@ -478,7 +493,7 @@ const Game = () => {
     });
   };
 
-    const finishGame = async () => {
+  const finishGame = async () => {
     const allUnlockedAchievements: any[] = [];
 
     await Promise.all(
@@ -505,13 +520,13 @@ const Game = () => {
           date: new Date().toISOString(),
         };
 
-        // Save last game score for High Scores page (if you use it there)
+        // Save last game score for High Scores page
         localStorage.setItem(
           'yahtzee_last_game_score',
           JSON.stringify(highScore)
         );
 
-        // Persist to whatever backing store gameService uses
+        // Persist to backing store
         await gameService.saveHighScore(highScore);
 
         // Update all-time stats + achievements
@@ -519,7 +534,7 @@ const Game = () => {
         const unlocked = achievementEngine.checkAchievementsAfterGame(highScore);
         allUnlockedAchievements.push(...unlocked);
 
-        // Update best score in localStorage allTimeStats (like the working branch)
+        // Update best score in localStorage allTimeStats
         const statsRaw = localStorage.getItem('yahtzee_all_time_stats');
         const stats = statsRaw ? JSON.parse(statsRaw) : {};
         if (gameState.mode === 'classic') {
@@ -583,12 +598,11 @@ const Game = () => {
     navigate('/high-scores');
   };
 
-
   const canScore = turnState.hasRolled;
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-8">
-      <div className="max-w-3xl mx-auto p-4 pt-6">
+      <div className="max-w-5xl mx-auto p-4 pt-6">
         {/* Header */}
         <Card className="p-4 mb-6 bg-gray-900 text-white border-0">
           <div className="flex items-center justify-between">
@@ -609,12 +623,35 @@ const Game = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-white hover:bg.white/10 hover:bg-white/10"
+                    className="text-white hover:bg-white/10"
                   >
                     <Palette className="w-4 h-4" />
                   </Button>
                 }
               />
+
+              {/* Layout toggle button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setLayoutMode((prev) =>
+                    prev === 'split' ? 'stacked' : 'split'
+                  )
+                }
+                className={`text-white hover:bg-white/10 ${
+                  layoutMode === 'split' ? 'bg-white/10' : ''
+                }`}
+                title={
+                  layoutMode === 'split'
+                    ? 'Switch to stacked view'
+                    : 'Switch to side-by-side view'
+                }
+                aria-label="Toggle layout"
+              >
+                <LayoutPanelLeft className="w-4 h-4" />
+              </Button>
+
               <Button
                 onClick={resetCurrentTurn}
                 variant="ghost"
@@ -666,42 +703,53 @@ const Game = () => {
           </div>
         )}
 
-        {/* Dice Roller */}
-        <div className="mb-6">
-          <DiceRoller
-            mode={gameState.mode}
-            dice={turnState.currentDice}
-            colors={turnState.currentColors}
-            heldDice={turnState.heldDice}
-            rollsLeft={turnState.rollsLeft}
-            isRolling={isRolling}
-            hasRolled={turnState.hasRolled}
-            onRoll={rollDice}
-            onToggleHold={toggleHold}
-          />
-        </div>
+        {/* Main play area: Dice + Scorecard */}
+        <div
+          className={
+            layoutMode === 'split'
+              ? 'grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.3fr)] items-start'
+              : 'flex flex-col gap-6'
+          }
+        >
+          {/* Dice Roller */}
+          <div>
+            <DiceRoller
+              mode={gameState.mode}
+              dice={turnState.currentDice}
+              colors={turnState.currentColors}
+              heldDice={turnState.heldDice}
+              rollsLeft={turnState.rollsLeft}
+              isRolling={isRolling}
+              hasRolled={turnState.hasRolled}
+              onRoll={rollDice}
+              onToggleHold={toggleHold}
+            />
+          </div>
 
-        {/* Scorecard */}
-        {gameState.mode === 'classic' ? (
-          <InteractiveClassicScorecard
-            scores={currentPlayer.classicScores}
-            currentDice={turnState.currentDice}
-            canScore={canScore}
-            onScoreSelect={handleScoreSelect}
-            playerName={currentPlayer.name}
-          />
-        ) : (
-          <InteractiveRainbowScorecard
-            scores={currentPlayer.rainbowScores}
-            currentDice={turnState.currentDice}
-            currentColors={turnState.currentColors.filter(
-              (c): c is DiceColor => c !== 'neutral'
+          {/* Scorecard */}
+          <div>
+            {gameState.mode === 'classic' ? (
+              <InteractiveClassicScorecard
+                scores={currentPlayer.classicScores}
+                currentDice={turnState.currentDice}
+                canScore={canScore}
+                onScoreSelect={handleScoreSelect}
+                playerName={currentPlayer.name}
+              />
+            ) : (
+              <InteractiveRainbowScorecard
+                scores={currentPlayer.rainbowScores}
+                currentDice={turnState.currentDice}
+                currentColors={turnState.currentColors.filter(
+                  (c): c is DiceColor => c !== 'neutral'
+                )}
+                canScore={canScore}
+                onScoreSelect={handleScoreSelect}
+                playerName={currentPlayer.name}
+              />
             )}
-            canScore={canScore}
-            onScoreSelect={handleScoreSelect}
-            playerName={currentPlayer.name}
-          />
-        )}
+          </div>
+        </div>
       </div>
 
       <Navigation />
