@@ -340,16 +340,6 @@ export const ACHIEVEMENTS: Achievement[] = [
     target: 30,
     checkCondition: (ctx) => ctx.allTimeStats.streak ?? 0,
   },
-  {
-    id: 'streak-machine',
-    title: 'Streak Machine',
-    description: 'Maintain a 50-day play streak',
-    category: 'dual',
-    modes: ['classic', 'rainbow'],
-    icon: '🥳',
-    target: 50,
-    checkCondition: (ctx) => ctx.allTimeStats.streak ?? 0,
-  },
 
   // ============================================
   // RAINBOW MODE ACHIEVEMENTS (per-game ones check full card)
@@ -862,6 +852,18 @@ export const ACHIEVEMENTS: Achievement[] = [
   checkCondition: (ctx: AchievementContext) => {
     if (!ctx.puzzleSuccess) return false;
     return (ctx.puzzleAttempts ?? 0) >= 20;
+  },
+},
+{
+  id: 'puzzle-persistent',
+  title: 'Persistent Prodigy',
+  description: 'Finally clear a puzzle after 30+ attempts on the same puzzle',
+  category: 'puzzle',
+  modes: ['classic', 'rainbow'],
+  icon: '🦾',
+  checkCondition: (ctx: AchievementContext) => {
+    if (!ctx.puzzleSuccess) return false;
+    return (ctx.puzzleAttempts ?? 0) >= 30;
   },
 },
 ];
