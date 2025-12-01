@@ -214,9 +214,6 @@ const Index = () => {
                         <div className="font-medium text-sm sm:text-base">
                           Classic Mode
                         </div>
-                        <div className="text-xs sm:text-sm text-muted-foreground">
-                          Where strategy meets luck
-                        </div>
                       </Label>
                       <ModeInfoDialog
                         title="How to play Classic Mode"
@@ -245,9 +242,6 @@ const Index = () => {
                         <div className="font-medium text-sm sm:text-base">
                           Rainbow Mode
                         </div>
-                        <div className="text-xs sm:text-sm text-muted-foreground">
-                          Unleash the power of colorful dice
-                        </div>
                       </Label>
                       <ModeInfoDialog
                         title="How to play Rainbow Mode"
@@ -275,9 +269,6 @@ const Index = () => {
                       >
                         <div className="font-medium flex items-center gap-2 text-sm sm:text-base">
                           Puzzle Mode
-                        </div>
-                        <div className="text-xs sm:text-sm text-muted-foreground">
-                          Tackle unique objectives and test your skills
                         </div>
                       </Label>
                       <ModeInfoDialog
