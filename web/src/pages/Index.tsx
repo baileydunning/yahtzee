@@ -215,7 +215,7 @@ const Index = () => {
                           Classic Mode
                         </div>
                         <div className="text-xs sm:text-sm text-muted-foreground">
-                          The game that started it all
+                          Where strategy meets luck
                         </div>
                       </Label>
                       <ModeInfoDialog
@@ -246,7 +246,7 @@ const Index = () => {
                           Rainbow Mode
                         </div>
                         <div className="text-xs sm:text-sm text-muted-foreground">
-                          Unleash the power of colorful dice
+                          Brighten your game, boost your score
                         </div>
                       </Label>
                       <ModeInfoDialog

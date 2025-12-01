@@ -25,7 +25,7 @@ export const PUZZLES: Puzzle[] = [
   {
     id: "classic-easy-2",
     title: "House Party",
-    description: "You're close to a Full House. Can you finish the job?",
+    description: "Two pairs are knocking—turn this start into a cozy, guaranteed Full House.",
     gameMode: "classic",
     difficulty: "easy",
     tags: ["full_house", "beginner"],
@@ -340,19 +340,19 @@ export const PUZZLES: Puzzle[] = [
     id: "classic-hard-even-engine",
     title: "Even Engine",
     description:
-      "Lean into the evens. Build power with 2s, 4s, 6s, and a big Three of a Kind.",
+      "Lean into the evens. Build power with 2s, 4s, 6s, and a big Four of a Kind.",
     gameMode: "classic",
     difficulty: "hard",
-    tags: ["multi_category", "upper_section", "three_of_kind", "even_only"],
+    tags: ["multi_category", "upper_section", "four_of_kind", "even_only"],
     initialDice: [2, 2, 4, 4, 6],
     constraints: {
-      requiredCategories: ["twos", "fours", "sixes", "threeOfKind"],
+      requiredCategories: ["twos", "fours", "sixes", "fourOfKind"],
     },
     objective: {
       type: "score_at_least",
-      value: 65,
+      value: 60,
       description:
-        "Score at least 65 total across Twos, Fours, Sixes, and Three of a Kind",
+        "Score at least 60 total across Twos, Fours, Sixes, and Four of a Kind",
     },
   },
   {
@@ -686,8 +686,8 @@ export const PUZZLES: Puzzle[] = [
   },
   {
     id: "rainbow-medium-3",
-    title: "Red & Triple",
-    description: "Score both All Red AND a solid Three of a Kind.",
+    title: "Ruby Rally",
+    description: "Unleash a wave of red—turn every die scarlet and roll a powerful Three of a Kind. Only true color and number mastery will earn you a dazzling score!",
     gameMode: "rainbow",
     difficulty: "medium",
     tags: ["multi_category", "all_color", "three_of_kind"],
@@ -706,11 +706,11 @@ export const PUZZLES: Puzzle[] = [
     id: "rainbow-medium-blue-river",
     title: "Blue River",
     description:
-      "Your numbers hint at a straight… but only some are blue. Can you align both paths?",
+      "Guide your dice down the river—form a Large Straight and transform the board into a sea of blue. Can you master both the line and the color?",
     gameMode: "rainbow",
     difficulty: "medium",
     tags: ["all_color", "large_straight", "intermediate"],
-    initialDice: [2, 3, 4, 5, 2],
+    initialDice: [2, 3, 4, 5, 4],
     initialColors: ["blue", "blue", "red", "yellow", "blue"],
     constraints: {
       requiredCategories: ["allBlue", "largeStraight"],
