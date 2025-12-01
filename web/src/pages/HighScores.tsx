@@ -57,25 +57,12 @@ const getSortedScores = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-8">
-      <div className="max-w-4xl mx-auto p-4 pt-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="max-w-4xl mx-auto p-2 pt-4 sm:p-4 sm:pt-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
           <div className="flex items-center gap-3">
             <Trophy className="w-8 h-8 text-primary" />
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">High Scores</h1>
           </div>
-          {lastGameScore && (
-            <Card
-              className={`p-3 flex flex-col items-end min-w-[180px] bg-muted ${lastGameScore.scorecard ? 'cursor-pointer' : ''}`}
-              onClick={() => lastGameScore.scorecard && setSelectedScore(lastGameScore)}
-            >
-              <div className="text-md text-muted-foreground mb-1">Last Game</div>
-              <div className="font-bold text-lg text-foreground">{lastGameScore.score}</div>
-              <div className="text-xs text-muted-foreground">{lastGameScore.mode === 'classic' ? 'Classic' : 'Rainbow'} Mode</div>
-              <div className="text-xs text-muted-foreground">{(lastGameScore.playerNames || []).join(', ')}
-              </div>
-              <div className="text-xs text-muted-foreground">{formatDate(lastGameScore.date)}</div>
-            </Card>
-          )}
         </div>
 
         {loading ? (
@@ -86,11 +73,12 @@ const getSortedScores = () => {
         ) : (
           <>
             {scores.length > 0 && (
-              <div className="mb-6 flex gap-2">
+              <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-2">
                 <Button
                   onClick={() => setModeFilter('all')}
                   variant={modeFilter === 'all' ? "default" : "outline"}
                   size="sm"
+                  className="w-full sm:w-auto"
                 >
                   All Modes
                 </Button>
@@ -98,6 +86,7 @@ const getSortedScores = () => {
                   onClick={() => setModeFilter('classic')}
                   variant={modeFilter === 'classic' ? "default" : "outline"}
                   size="sm"
+                  className="w-full sm:w-auto"
                 >
                   Classic Only
                 </Button>
@@ -105,6 +94,7 @@ const getSortedScores = () => {
                   onClick={() => setModeFilter('rainbow')}
                   variant={modeFilter === 'rainbow' ? "default" : "outline"}
                   size="sm"
+                  className="w-full sm:w-auto"
                 >
                   Rainbow Only
                 </Button>
@@ -112,6 +102,7 @@ const getSortedScores = () => {
                   onClick={() => setModeFilter('recent')}
                   variant={modeFilter === 'recent' ? "default" : "outline"}
                   size="sm"
+                  className="w-full sm:w-auto"
                 >
                   Most Recent
                 </Button>
@@ -123,35 +114,39 @@ const getSortedScores = () => {
                 <Trophy className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-foreground mb-2">No High Scores</h2>
                 <p className="text-muted-foreground">
-                  {modeFilter === 'all'
-                    ? 'Finish a game to see your scores here!'
-                    : `No scores for ${modeFilter === 'classic' ? 'Classic' : 'Rainbow'} mode yet.`}
+                  {(() => {
+                    if (modeFilter === 'all') return 'Finish a game to see your scores here!';
+                    if (modeFilter === 'classic') return 'No scores for Classic mode yet.';
+                    if (modeFilter === 'rainbow') return 'No scores for Rainbow mode yet.';
+                    if (modeFilter === 'recent') return 'No recent scores yet.';
+                    return 'No scores yet.';
+                  })()}
                 </p>
               </Card>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {sortedScores.slice(0, 10).map((score, index) => (
                       <Card
                         key={score.id}
-                        className={`p-4 hover:shadow-md transition-shadow ${score.scorecard ? 'cursor-pointer' : ''}`}
+                        className={`p-2 sm:p-4 hover:shadow-md transition-shadow ${score.scorecard ? 'cursor-pointer' : ''} w-full`}
                         onClick={() => score.scorecard && setSelectedScore(score)}
                       >
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                            <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold ${
                                 index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                               }`}>
                                 {index + 1}
                               </div>
                               <div>
-                                <div className="font-bold text-xl text-foreground">{score.score}</div>
-                                <div className="text-sm text-muted-foreground">
+                                <div className="font-bold text-base sm:text-xl text-foreground">{score.score}</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground">
                                   {score.mode === 'classic' ? 'Classic' : 'Rainbow'} Mode
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground ml-8 sm:ml-11">
                               <div className="flex items-center gap-1">
                                 <User className="w-4 h-4" />
                                 {(score.playerNames || []).join(', ')}
@@ -162,7 +157,7 @@ const getSortedScores = () => {
                               </div>
                             </div>
                             {score.note && (
-                              <p className="text-sm text-muted-foreground mt-2 ml-11">{score.note}</p>
+                              <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2 ml-8 sm:ml-11">{score.note}</p>
                             )}
                           </div>
                         </div>
