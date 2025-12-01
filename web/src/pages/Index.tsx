@@ -246,7 +246,7 @@ const Index = () => {
                           Rainbow Mode
                         </div>
                         <div className="text-xs sm:text-sm text-muted-foreground">
-                          Brighten your game, boost your score
+                          Unleash the power of colorful dice
                         </div>
                       </Label>
                       <ModeInfoDialog
