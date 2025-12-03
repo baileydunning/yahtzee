@@ -220,19 +220,19 @@ const Game = () => {
     if (isYahtzeeRoll) {
       if (gameState.mode === 'classic') {
         if (player.classicScores.yahtzee === 0) {
-          // Yahtzee box zeroed – no more bonuses or Joker scoring
+          // Yahtzee box zeroed – no more bonuses or Joker scoring,
+          // but you can still score the roll in other categories.
           toast({
             title: 'No more Yahtzee bonuses!',
             description:
-              'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
+              'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed, but you can still score this roll normally.',
             variant: 'destructive',
           });
-          blockScoring = true;
         } else if (
           player.classicScores.yahtzee === 50 &&
           category !== 'yahtzee'
         ) {
-          // Bonus Yahtzee when Yahtzee box already has 50 – no scoring elsewhere
+          // Bonus Yahtzee when Yahtzee box already has 50 – pure bonus behavior
           player.classicScores.bonusYahtzees =
             (player.classicScores.bonusYahtzees || 0) + 1;
           toast({
@@ -256,13 +256,14 @@ const Game = () => {
 
       if (gameState.mode === 'rainbow') {
         if (player.rainbowScores.yahtzee === 0) {
+          // Yahtzee box zeroed – no more bonuses or Joker scoring,
+          // but you can still score the roll in other categories.
           toast({
             title: 'No more Yahtzee bonuses!',
             description:
-              'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed.',
+              'You zeroed out the Yahtzee box. No further Yahtzee bonuses or Joker scoring allowed, but you can still score this roll normally.',
             variant: 'destructive',
           });
-          blockScoring = true;
         } else if (
           player.rainbowScores.yahtzee === 50 &&
           category !== 'yahtzee'
@@ -630,7 +631,7 @@ const Game = () => {
                 }
               />
 
-              {/* Layout toggle button */}
+                {/* Layout toggle button */}
               <Button
                 variant="ghost"
                 size="sm"
