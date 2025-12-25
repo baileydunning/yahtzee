@@ -89,6 +89,24 @@ export const ACHIEVEMENTS: Achievement[] = [
       return totalClassicPoints + totalRainbowPoints;
     },
   },
+    {
+      id: 'score-legend',
+      title: 'Score Legend',
+      description: 'Score a total of 50,000 points across all games',
+      category: 'dual',
+      modes: ['classic', 'rainbow'],
+      icon: '🪙',
+      target: 50000,
+      checkCondition: (ctx) => {
+        const totalClassicPoints = Array.isArray(ctx.allTimeStats.classicHighScores)
+          ? ctx.allTimeStats.classicHighScores.reduce((a: number, b: number) => a + b, 0)
+          : 0;
+        const totalRainbowPoints = Array.isArray(ctx.allTimeStats.rainbowHighScores)
+          ? ctx.allTimeStats.rainbowHighScores.reduce((a: number, b: number) => a + b, 0)
+          : 0;
+        return totalClassicPoints + totalRainbowPoints;
+      },
+    },
   {
     id: 'yahtzee-hunter',
     title: 'Yahtzee Hunter',
@@ -118,6 +136,20 @@ export const ACHIEVEMENTS: Achievement[] = [
     },
   },
   {
+    id: 'yahtzee-mythic',
+    title: 'Yahtzee Mythic',
+    description: 'Earn 100 Yahtzees across all games',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🐉',
+    target: 100,
+    checkCondition: (ctx) => {
+      const classicYahtzees = ctx.allTimeStats.totalYahtzeesInClassic ?? 0;
+      const rainbowYahtzees = ctx.allTimeStats.totalYahtzeesInRainbow ?? 0;
+      return classicYahtzees + rainbowYahtzees;
+    },
+  },
+  {
     id: 'game-grinder',
     title: 'Game Grinder',
     description: 'Play 50 games in total',
@@ -137,6 +169,26 @@ export const ACHIEVEMENTS: Achievement[] = [
     target: 100,
     checkCondition: (ctx) => ctx.allTimeStats.totalGames ?? 0,
   },
+  {
+    id: 'game-marathoner',
+    title: 'Game Marathoner',
+    description: 'Play 500 games in total',
+    category: 'dual',
+    modes: ['classic', 'rainbow'],
+    icon: '🚞',
+    target: 500,
+    checkCondition: (ctx) => ctx.allTimeStats.totalGames ?? 0,
+  },
+    {
+      id: 'game-centurion',
+      title: 'Centurion Roller',
+      description: 'Play 1000 games in total',
+      category: 'dual',
+      modes: ['classic', 'rainbow'],
+      icon: '🏛️',
+      target: 1000,
+      checkCondition: (ctx) => ctx.allTimeStats.totalGames ?? 0,
+    },
   {
     id: 'no-miss',
     title: 'No Miss',
@@ -164,6 +216,34 @@ export const ACHIEVEMENTS: Achievement[] = [
       return classicBonus + rainbowBonus;
     },
   },
+    {
+      id: 'bonus-fiesta',
+      title: 'Bonus Fiesta',
+      description: 'Earn 50 Bonus Yahtzees across all games',
+      category: 'dual',
+      modes: ['classic', 'rainbow'],
+      icon: '🎉',
+      target: 50,
+      checkCondition: (ctx) => {
+        const classicBonus = ctx.allTimeStats.classicBonusYahtzees ?? 0;
+        const rainbowBonus = ctx.allTimeStats.rainbowBonusYahtzees ?? 0;
+        return classicBonus + rainbowBonus;
+      },
+    },
+      {
+        id: 'bonus-legend',
+        title: 'Bonus Legend',
+        description: 'Earn 100 Bonus Yahtzees across all games',
+        category: 'dual',
+        modes: ['classic', 'rainbow'],
+        icon: '🎊',
+        target: 100,
+        checkCondition: (ctx) => {
+          const classicBonus = ctx.allTimeStats.classicBonusYahtzees ?? 0;
+          const rainbowBonus = ctx.allTimeStats.rainbowBonusYahtzees ?? 0;
+          return classicBonus + rainbowBonus;
+        },
+      },
   {
     id: 'comeback-artist',
     title: 'Comeback Artist',
@@ -179,44 +259,44 @@ export const ACHIEVEMENTS: Achievement[] = [
       if (ctx.mode === 'classic') {
         score = ctx.classicScores
           ? (ctx.classicScores.aces ?? 0) +
-            (ctx.classicScores.twos ?? 0) +
-            (ctx.classicScores.threes ?? 0) +
-            (ctx.classicScores.fours ?? 0) +
-            (ctx.classicScores.fives ?? 0) +
-            (ctx.classicScores.sixes ?? 0) +
-            (ctx.classicScores.threeOfKind ?? 0) +
-            (ctx.classicScores.fourOfKind ?? 0) +
-            (ctx.classicScores.fullHouse ?? 0) +
-            (ctx.classicScores.smallStraight ?? 0) +
-            (ctx.classicScores.largeStraight ?? 0) +
-            (ctx.classicScores.yahtzee ?? 0) +
-            (ctx.classicScores.chance ?? 0)
+          (ctx.classicScores.twos ?? 0) +
+          (ctx.classicScores.threes ?? 0) +
+          (ctx.classicScores.fours ?? 0) +
+          (ctx.classicScores.fives ?? 0) +
+          (ctx.classicScores.sixes ?? 0) +
+          (ctx.classicScores.threeOfKind ?? 0) +
+          (ctx.classicScores.fourOfKind ?? 0) +
+          (ctx.classicScores.fullHouse ?? 0) +
+          (ctx.classicScores.smallStraight ?? 0) +
+          (ctx.classicScores.largeStraight ?? 0) +
+          (ctx.classicScores.yahtzee ?? 0) +
+          (ctx.classicScores.chance ?? 0)
           : 0;
       } else {
         score = ctx.rainbowScores
           ? [
-              ctx.rainbowScores.aces ?? 0,
-              ctx.rainbowScores.twos ?? 0,
-              ctx.rainbowScores.threes ?? 0,
-              ctx.rainbowScores.fours ?? 0,
-              ctx.rainbowScores.fives ?? 0,
-              ctx.rainbowScores.sixes ?? 0,
-              ctx.rainbowScores.threeOfKind ?? 0,
-              ctx.rainbowScores.fourOfKind ?? 0,
-              ctx.rainbowScores.fullHouse ?? 0,
-              ctx.rainbowScores.smallStraight ?? 0,
-              ctx.rainbowScores.largeStraight ?? 0,
-              ctx.rainbowScores.yahtzee ?? 0,
-              ctx.rainbowScores.chance ?? 0,
-              ctx.rainbowScores.allRed ?? 0,
-              ctx.rainbowScores.allBlue ?? 0,
-              ctx.rainbowScores.allGreen ?? 0,
-              ctx.rainbowScores.allYellow ?? 0,
-              ctx.rainbowScores.allPurple ?? 0,
-              ctx.rainbowScores.threeColorMix ?? 0,
-              ctx.rainbowScores.fourColorMix ?? 0,
-              ctx.rainbowScores.rainbowBonus ?? 0,
-            ].reduce((a, b) => a + b, 0)
+            ctx.rainbowScores.aces ?? 0,
+            ctx.rainbowScores.twos ?? 0,
+            ctx.rainbowScores.threes ?? 0,
+            ctx.rainbowScores.fours ?? 0,
+            ctx.rainbowScores.fives ?? 0,
+            ctx.rainbowScores.sixes ?? 0,
+            ctx.rainbowScores.threeOfKind ?? 0,
+            ctx.rainbowScores.fourOfKind ?? 0,
+            ctx.rainbowScores.fullHouse ?? 0,
+            ctx.rainbowScores.smallStraight ?? 0,
+            ctx.rainbowScores.largeStraight ?? 0,
+            ctx.rainbowScores.yahtzee ?? 0,
+            ctx.rainbowScores.chance ?? 0,
+            ctx.rainbowScores.allRed ?? 0,
+            ctx.rainbowScores.allBlue ?? 0,
+            ctx.rainbowScores.allGreen ?? 0,
+            ctx.rainbowScores.allYellow ?? 0,
+            ctx.rainbowScores.allPurple ?? 0,
+            ctx.rainbowScores.threeColorMix ?? 0,
+            ctx.rainbowScores.fourColorMix ?? 0,
+            ctx.rainbowScores.rainbowBonus ?? 0,
+          ].reduce((a, b) => a + b, 0)
           : 0;
       }
 
@@ -241,43 +321,43 @@ export const ACHIEVEMENTS: Achievement[] = [
       const finalScore =
         ctx.mode === 'classic'
           ? (
-              (ctx.classicScores?.aces ?? 0) +
-              (ctx.classicScores?.twos ?? 0) +
-              (ctx.classicScores?.threes ?? 0) +
-              (ctx.classicScores?.fours ?? 0) +
-              (ctx.classicScores?.fives ?? 0) +
-              (ctx.classicScores?.sixes ?? 0) +
-              (ctx.classicScores?.threeOfKind ?? 0) +
-              (ctx.classicScores?.fourOfKind ?? 0) +
-              (ctx.classicScores?.fullHouse ?? 0) +
-              (ctx.classicScores?.smallStraight ?? 0) +
-              (ctx.classicScores?.largeStraight ?? 0) +
-              (ctx.classicScores?.yahtzee ?? 0) +
-              (ctx.classicScores?.chance ?? 0)
-            )
+            (ctx.classicScores?.aces ?? 0) +
+            (ctx.classicScores?.twos ?? 0) +
+            (ctx.classicScores?.threes ?? 0) +
+            (ctx.classicScores?.fours ?? 0) +
+            (ctx.classicScores?.fives ?? 0) +
+            (ctx.classicScores?.sixes ?? 0) +
+            (ctx.classicScores?.threeOfKind ?? 0) +
+            (ctx.classicScores?.fourOfKind ?? 0) +
+            (ctx.classicScores?.fullHouse ?? 0) +
+            (ctx.classicScores?.smallStraight ?? 0) +
+            (ctx.classicScores?.largeStraight ?? 0) +
+            (ctx.classicScores?.yahtzee ?? 0) +
+            (ctx.classicScores?.chance ?? 0)
+          )
           : (
-              (ctx.rainbowScores?.aces ?? 0) +
-              (ctx.rainbowScores?.twos ?? 0) +
-              (ctx.rainbowScores?.threes ?? 0) +
-              (ctx.rainbowScores?.fours ?? 0) +
-              (ctx.rainbowScores?.fives ?? 0) +
-              (ctx.rainbowScores?.sixes ?? 0) +
-              (ctx.rainbowScores?.threeOfKind ?? 0) +
-              (ctx.rainbowScores?.fourOfKind ?? 0) +
-              (ctx.rainbowScores?.fullHouse ?? 0) +
-              (ctx.rainbowScores?.smallStraight ?? 0) +
-              (ctx.rainbowScores?.largeStraight ?? 0) +
-              (ctx.rainbowScores?.yahtzee ?? 0) +
-              (ctx.rainbowScores?.chance ?? 0) +
-              (ctx.rainbowScores?.allRed ?? 0) +
-              (ctx.rainbowScores?.allBlue ?? 0) +
-              (ctx.rainbowScores?.allGreen ?? 0) +
-              (ctx.rainbowScores?.allYellow ?? 0) +
-              (ctx.rainbowScores?.allPurple ?? 0) +
-              (ctx.rainbowScores?.threeColorMix ?? 0) +
-              (ctx.rainbowScores?.fourColorMix ?? 0) +
-              (ctx.rainbowScores?.rainbowBonus ?? 0)
-            );
+            (ctx.rainbowScores?.aces ?? 0) +
+            (ctx.rainbowScores?.twos ?? 0) +
+            (ctx.rainbowScores?.threes ?? 0) +
+            (ctx.rainbowScores?.fours ?? 0) +
+            (ctx.rainbowScores?.fives ?? 0) +
+            (ctx.rainbowScores?.sixes ?? 0) +
+            (ctx.rainbowScores?.threeOfKind ?? 0) +
+            (ctx.rainbowScores?.fourOfKind ?? 0) +
+            (ctx.rainbowScores?.fullHouse ?? 0) +
+            (ctx.rainbowScores?.smallStraight ?? 0) +
+            (ctx.rainbowScores?.largeStraight ?? 0) +
+            (ctx.rainbowScores?.yahtzee ?? 0) +
+            (ctx.rainbowScores?.chance ?? 0) +
+            (ctx.rainbowScores?.allRed ?? 0) +
+            (ctx.rainbowScores?.allBlue ?? 0) +
+            (ctx.rainbowScores?.allGreen ?? 0) +
+            (ctx.rainbowScores?.allYellow ?? 0) +
+            (ctx.rainbowScores?.allPurple ?? 0) +
+            (ctx.rainbowScores?.threeColorMix ?? 0) +
+            (ctx.rainbowScores?.fourColorMix ?? 0) +
+            (ctx.rainbowScores?.rainbowBonus ?? 0)
+          );
 
       return s.yahtzee === 0 && finalScore >= 400;
     },
@@ -447,6 +527,29 @@ export const ACHIEVEMENTS: Achievement[] = [
     },
   },
   {
+    id: 'rainbow-sweep',
+    title: 'Rainbow Sweep',
+    description: 'Score in every rainbow category in a completed Rainbow game',
+    category: 'rainbow',
+    modes: ['rainbow'],
+    icon: '🦄',
+    checkCondition: (ctx) => {
+      const s = ctx.rainbowScores;
+      if (!isRainbowCardComplete(s)) return false;
+      const rainbowSpecific = [
+        s.allRed,
+        s.allBlue,
+        s.allGreen,
+        s.allYellow,
+        s.allPurple,
+        s.threeColorMix,
+        s.fourColorMix,
+        s.rainbowBonus,
+      ];
+      return rainbowSpecific.every((v: number | null | undefined) => v !== null && v !== undefined && v > 0);
+    },
+  },
+  {
     id: 'rainbow-rainmaker',
     title: 'Rainbow Rainmaker',
     description: 'Score 20,000 total points in Rainbow Mode',
@@ -456,6 +559,16 @@ export const ACHIEVEMENTS: Achievement[] = [
     target: 20000,
     checkCondition: (ctx) => ctx.allTimeStats.totalRainbowPoints ?? 0,
   },
+    {
+      id: 'rainbow-typhoon',
+      title: 'Rainbow Typhoon',
+      description: 'Score 50,000 total points in Rainbow Mode',
+      category: 'rainbow',
+      modes: ['rainbow'],
+      icon: '🌀',
+      target: 50000,
+      checkCondition: (ctx) => ctx.allTimeStats.totalRainbowPoints ?? 0,
+    },
   {
     id: 'color-chain-master',
     title: 'Color Chain Master',
@@ -479,7 +592,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Score both straights and complete a rainbow set in one game',
     category: 'rainbow',
     modes: ['rainbow'],
-    icon: '🌀',
+    icon: '🚀',
     checkCondition: (ctx) => {
       const s = ctx.rainbowScores;
       if (!isRainbowCardComplete(s)) return false;
@@ -530,14 +643,53 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'rainbow-elite',
-    title: 'Rainbow Elite',
+    title: 'Prism Prodigy',
     description: 'Score 400+ points in Rainbow 10 times',
     category: 'rainbow',
     modes: ['rainbow'],
-    icon: '💠',
+    icon: '🔮',
     target: 10,
     checkCondition: (ctx) => ctx.allTimeStats.rainbow400PlusGames ?? 0,
   },
+    {
+      id: 'rainbow-master',
+      title: 'Aurora Virtuoso',
+      description: 'Score 400+ points in Rainbow 25 times',
+      category: 'rainbow',
+      modes: ['rainbow'],
+      icon: '🪷',
+      target: 25,
+      checkCondition: (ctx) => ctx.allTimeStats.rainbow400PlusGames ?? 0,
+    },
+    {
+      id: 'rainbow-legend',
+      title: 'Celestial Icon',
+      description: 'Score 400+ points in Rainbow 50 times',
+      category: 'rainbow',
+      modes: ['rainbow'],
+      icon: '🌌',
+      target: 50,
+      checkCondition: (ctx) => ctx.allTimeStats.rainbow400PlusGames ?? 0,
+    },
+  {
+      id: 'spectrum-streak',
+      title: 'Spectrum Streak',
+      description: 'Score both straights and all three color mixes (3-Color, 4-Color, Rainbow Bonus) in a single Rainbow game',
+      category: 'rainbow',
+      modes: ['rainbow'],
+      icon: '🌠',
+      checkCondition: (ctx) => {
+        const s = ctx.rainbowScores;
+        if (!isRainbowCardComplete(s)) return false;
+        return (
+          (s.smallStraight ?? 0) > 0 &&
+          (s.largeStraight ?? 0) > 0 &&
+          (s.threeColorMix ?? 0) > 0 &&
+          (s.fourColorMix ?? 0) > 0 &&
+          (s.rainbowBonus ?? 0) > 0
+        );
+      },
+    },
   {
     id: 'chromatic-surge',
     title: 'Chromatic Surge',
@@ -565,6 +717,23 @@ export const ACHIEVEMENTS: Achievement[] = [
     },
   },
   {
+    id: 'palette-master',
+    title: 'Palette Master',
+    description: 'Score two All-Color categories AND Rainbow Bonus in the same Rainbow game',
+    category: 'rainbow',
+    modes: ['rainbow'],
+    icon: '🖌️',
+    checkCondition: (ctx) => {
+      const s = ctx.rainbowScores;
+      if (!isRainbowCardComplete(s)) return false;
+
+      const monos = [s.allRed, s.allBlue, s.allGreen, s.allYellow, s.allPurple]
+        .filter(v => typeof v === 'number' && v > 0).length;
+
+      return monos >= 2 && (s.rainbowBonus ?? 0) > 0;
+    },
+  },
+  {
     id: 'spectrum-yahtzee',
     title: 'Spectrum Yahtzee',
     description: 'Score Yahtzee and complete a full rainbow set in the same game',
@@ -578,6 +747,45 @@ export const ACHIEVEMENTS: Achievement[] = [
       return s.yahtzee === 50 && s.rainbowBonus > 0;
     },
   },
+  {
+    id: 'prismatic-routing',
+    title: 'Prismatic Routing',
+    description: 'Score 3-Color Mix, 4-Color Mix, and both Straights in one Rainbow game',
+    category: 'rainbow',
+    modes: ['rainbow'],
+    icon: '🧭',
+    checkCondition: (ctx) => {
+      const s = ctx.rainbowScores;
+      if (!isRainbowCardComplete(s)) return false;
+
+      return (
+        (s.threeColorMix ?? 0) > 0 &&
+        (s.fourColorMix ?? 0) > 0 &&
+        (s.smallStraight ?? 0) > 0 &&
+        (s.largeStraight ?? 0) > 0
+      );
+    },
+  },
+  {
+    id: 'grayscale-mode',
+    title: 'Grayscale Mode',
+    description: 'Finish a Rainbow game with every rainbow-specific category scored as 0',
+    category: 'rainbow',
+    modes: ['rainbow'],
+    icon: '🩶',
+    checkCondition: (ctx) => {
+      const s = ctx.rainbowScores;
+      if (!isRainbowCardComplete(s)) return false;
+
+      const rainbowSpecific = [
+        s.allRed, s.allBlue, s.allGreen, s.allYellow, s.allPurple,
+        s.threeColorMix, s.fourColorMix, s.rainbowBonus,
+      ];
+
+      return rainbowSpecific.every(v => typeof v === 'number' && v === 0);
+    },
+  },
+
 
   // ============================================
   // CLASSIC MODE ACHIEVEMENTS
@@ -637,6 +845,26 @@ export const ACHIEVEMENTS: Achievement[] = [
     },
   },
   {
+      id: 'upper-max',
+      title: 'Upper Maximus',
+      description: 'Score 84 points in the upper section in a Classic game',
+      category: 'classic',
+      modes: ['classic'],
+      icon: '🦾',
+      checkCondition: (ctx) => {
+        const s = ctx.classicScores;
+        if (!isClassicCardComplete(s)) return false;
+        const upperTotal =
+          (s.aces ?? 0) +
+          (s.twos ?? 0) +
+          (s.threes ?? 0) +
+          (s.fours ?? 0) +
+          (s.fives ?? 0) +
+          (s.sixes ?? 0);
+        return upperTotal === 84;
+      },
+    },
+  {
     id: 'upper-veteran',
     title: 'Upper Section Veteran',
     description: 'Earn the upper bonus 10 times',
@@ -646,6 +874,36 @@ export const ACHIEVEMENTS: Achievement[] = [
     target: 10,
     checkCondition: (ctx) => ctx.allTimeStats.upperBonusesEarned,
   },
+  {
+  id: 'upper-expert',
+  title: 'Bonus Breaker',
+  description: 'Earn the upper bonus 25 times',
+  category: 'classic',
+  modes: ['classic'],
+  icon: '🧮',
+  target: 25,
+  checkCondition: (ctx) => ctx.allTimeStats.upperBonusesEarned,
+},
+{
+  id: 'upper-master',
+  title: 'Ceiling Raiser',
+  description: 'Earn the upper bonus 50 times',
+  category: 'classic',
+  modes: ['classic'],
+  icon: '🪐',
+  target: 50,
+  checkCondition: (ctx) => ctx.allTimeStats.upperBonusesEarned,
+},
+{
+  id: 'upper-legend',
+  title: 'Upper Section Architect',
+  description: 'Earn the upper bonus 100 times',
+  category: 'classic',
+  modes: ['classic'],
+  icon: '🏗️',
+  target: 100,
+  checkCondition: (ctx) => ctx.allTimeStats.upperBonusesEarned,
+},
   {
     id: 'big-roller',
     title: 'Big Roller',
@@ -680,16 +938,46 @@ export const ACHIEVEMENTS: Achievement[] = [
     target: 5,
     checkCondition: (ctx) => ctx.allTimeStats.straightShooterGames,
   },
+    {
+      id: 'straight-shooter-elite',
+      title: 'Straight Shooter Elite',
+      description: 'Score Small & Large Straight in 20 Classic games',
+      category: 'classic',
+      modes: ['classic'],
+      icon: '🛤️',
+      target: 20,
+      checkCondition: (ctx) => ctx.allTimeStats.straightShooterGames,
+    },
+    {
+      id: 'straight-shooter-legend',
+      title: 'Straight Shooter Legend',
+      description: 'Score Small & Large Straight in 75 Classic games',
+      category: 'classic',
+      modes: ['classic'],
+      icon: '🚄',
+      target: 75,
+      checkCondition: (ctx) => ctx.allTimeStats.straightShooterGames,
+    },
   {
     id: 'classic-grinder',
     title: 'Classic Grinder',
     description: 'Complete 20 Classic games',
     category: 'classic',
     modes: ['classic'],
-    icon: '💪',
+    icon: '⚙️',
     target: 20,
     checkCondition: (ctx) => ctx.allTimeStats.classicGamesCompleted,
   },
+  {
+      id: 'classic-purist',
+      title: 'Classic Purist',
+      description: 'Complete 100 Classic games',
+      category: 'classic',
+      modes: ['classic'],
+      icon: '🎩',
+      target: 100,
+      checkCondition: (ctx) => ctx.allTimeStats.classicGamesCompleted,
+    },
   {
     id: 'classic-champion',
     title: 'Classic Champion',
@@ -700,6 +988,26 @@ export const ACHIEVEMENTS: Achievement[] = [
     target: 5,
     checkCondition: (ctx) => ctx.allTimeStats.classic275PlusGames,
   },
+    {
+      id: 'classic-conqueror',
+      title: 'Classic Conqueror',
+      description: 'Score 275+ in 25 Classic games',
+      category: 'classic',
+      modes: ['classic'],
+      icon: '⛏️',
+      target: 25,
+      checkCondition: (ctx) => ctx.allTimeStats.classic275PlusGames,
+    },
+    {
+      id: 'classic-legend',
+      title: 'Classic Legend',
+      description: 'Score 275+ in 50 Classic games',
+      category: 'classic',
+      modes: ['classic'],
+      icon: '🪄',
+      target: 50,
+      checkCondition: (ctx) => ctx.allTimeStats.classic275PlusGames,
+    },
   {
     id: 'precision-player',
     title: 'Precision Player',
@@ -738,6 +1046,24 @@ export const ACHIEVEMENTS: Achievement[] = [
         s.chance,
       ];
       return lower.every((score: number | null) => score !== null && score > 0);
+    },
+  },
+  {
+    id: 'upper-section-sniper',
+    title: 'Upper Section Sniper',
+    description: 'Score 80+ in the upper section in a completed Classic game',
+    category: 'classic',
+    modes: ['classic'],
+    icon: '🏹',
+    checkCondition: (ctx) => {
+      const s = ctx.classicScores;
+      if (!isClassicCardComplete(s)) return false;
+
+      const upper =
+        (s.aces ?? 0) + (s.twos ?? 0) + (s.threes ?? 0) +
+        (s.fours ?? 0) + (s.fives ?? 0) + (s.sixes ?? 0);
+
+      return upper >= 80;
     },
   },
   {
@@ -780,90 +1106,102 @@ export const ACHIEVEMENTS: Achievement[] = [
   // ============================================
   // PUZZLE ACHIEVEMENTS
   // ============================================
-  
-{
-  id: 'puzzle-first-clear',
-  title: 'Puzzle Rookie',
-  description: 'Complete your first puzzle',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '🧩',
-  checkCondition: (ctx: AchievementContext) => {
-    const solved = ctx.allTimeStats.puzzlesSolved ?? 0;
-    return solved >= 1;
+
+  {
+    id: 'puzzle-first-clear',
+    title: 'Puzzle Rookie',
+    description: 'Complete your first puzzle',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '🧩',
+    checkCondition: (ctx: AchievementContext) => {
+      const solved = ctx.allTimeStats.puzzlesSolved ?? 0;
+      return solved >= 1;
+    },
   },
-},
-{
-  id: 'puzzle-collector-10',
-  title: 'Puzzle Fan',
-  description: 'Complete 10 puzzles',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '📚',
-  target: 10,
-  checkCondition: (ctx: AchievementContext) => {
-    // numeric return so achievementEngine can use it as incremental progress
-    return ctx.allTimeStats.puzzlesSolved ?? 0;
+  {
+    id: 'puzzle-collector-10',
+    title: 'Puzzle Fan',
+    description: 'Complete 10 puzzles',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '📚',
+    target: 10,
+    checkCondition: (ctx: AchievementContext) => {
+      // numeric return so achievementEngine can use it as incremental progress
+      return ctx.allTimeStats.puzzlesSolved ?? 0;
+    },
   },
-},
-{
-  id: 'puzzle-pro',
-  title: 'Puzzle Pro',
-  description: 'Solve 25 puzzles',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '🙌',
-  target: 25,
-  checkCondition: (ctx: AchievementContext) => {
-    return ctx.allTimeStats.puzzlesSolved ?? 0;
+  {
+    id: 'puzzle-pro',
+    title: 'Puzzle Pro',
+    description: 'Solve 25 puzzles',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '🙌',
+    target: 25,
+    checkCondition: (ctx: AchievementContext) => {
+      return ctx.allTimeStats.puzzlesSolved ?? 0;
+    },
   },
-},
-{
-  id: 'puzzle-savant',
-  title: 'Puzzle Savant',
-  description: 'Solve 40 puzzles',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '🤩',
-  target: 40,
-  checkCondition: (ctx: AchievementContext) => {
-    return ctx.allTimeStats.puzzlesSolved ?? 0;
+  {
+    id: 'puzzle-savant',
+    title: 'Puzzle Savant',
+    description: 'Solve 40 puzzles',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '🤩',
+    target: 40,
+    checkCondition: (ctx: AchievementContext) => {
+      return ctx.allTimeStats.puzzlesSolved ?? 0;
+    },
   },
-},
-{
-  id: 'puzzle-tenacious',
-  title: 'Tenacious Solver',
-  description: 'Finally clear a puzzle after 10+ attempts on the same puzzle',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '🧗‍♀️',
-  checkCondition: (ctx: AchievementContext) => {
-    if (!ctx.puzzleSuccess) return false;
-    return (ctx.puzzleAttempts ?? 0) >= 10;
+  {
+    id: 'puzzle-master',
+    title: 'Puzzle Master',
+    description: 'Solve every puzzle',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '🏰',
+    target: 70,
+    checkCondition: (ctx: AchievementContext) => {
+      return ctx.allTimeStats.puzzlesSolved ?? 0;
+    },
   },
-},
-{
-  id: 'puzzle-unbreakable',
-  title: 'Unbreakable Solver',
-  description: 'Finally clear a puzzle after 20+ attempts on the same puzzle',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '🪨',
-  checkCondition: (ctx: AchievementContext) => {
-    if (!ctx.puzzleSuccess) return false;
-    return (ctx.puzzleAttempts ?? 0) >= 20;
+  {
+    id: 'puzzle-tenacious',
+    title: 'Tenacious Solver',
+    description: 'Finally clear a puzzle after 10+ attempts on the same puzzle',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '🧗‍♀️',
+    checkCondition: (ctx: AchievementContext) => {
+      if (!ctx.puzzleSuccess) return false;
+      return (ctx.puzzleAttempts ?? 0) >= 10;
+    },
   },
-},
-{
-  id: 'puzzle-persistent',
-  title: 'Persistent Prodigy',
-  description: 'Finally clear a puzzle after 30+ attempts on the same puzzle',
-  category: 'puzzle',
-  modes: ['classic', 'rainbow'],
-  icon: '🦾',
-  checkCondition: (ctx: AchievementContext) => {
-    if (!ctx.puzzleSuccess) return false;
-    return (ctx.puzzleAttempts ?? 0) >= 30;
+  {
+    id: 'puzzle-unbreakable',
+    title: 'Unbreakable Solver',
+    description: 'Finally clear a puzzle after 20+ attempts on the same puzzle',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '🪨',
+    checkCondition: (ctx: AchievementContext) => {
+      if (!ctx.puzzleSuccess) return false;
+      return (ctx.puzzleAttempts ?? 0) >= 20;
+    },
   },
-},
+  {
+    id: 'puzzle-persistent',
+    title: 'Persistent Prodigy',
+    description: 'Finally clear a puzzle after 30+ attempts on the same puzzle',
+    category: 'puzzle',
+    modes: ['classic', 'rainbow'],
+    icon: '💪',
+    checkCondition: (ctx: AchievementContext) => {
+      if (!ctx.puzzleSuccess) return false;
+      return (ctx.puzzleAttempts ?? 0) >= 30;
+    },
+  },
 ];

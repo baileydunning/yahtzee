@@ -149,20 +149,21 @@ export const achievementService = {
       // First game ever, start streak at 1
       stats.streak = 1;
     } else {
-      const prev = new Date(lastGameDate);
-      const curr = new Date(today);
-      const diffDays = Math.floor(
-        (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24)
-      );
+      // Compare using UTC calendar days
+      const prevDate = new Date(lastGameDate);
+      const currDate = new Date();
+      const prevUTC = Date.UTC(prevDate.getUTCFullYear(), prevDate.getUTCMonth(), prevDate.getUTCDate());
+      const currUTC = Date.UTC(currDate.getUTCFullYear(), currDate.getUTCMonth(), currDate.getUTCDate());
+      const diffDays = Math.floor((currUTC - prevUTC) / (1000 * 60 * 60 * 24));
 
       if (diffDays === 0) {
-        // Same day, keep streak
+        // Same calendar day, keep streak
         stats.streak = stats.streak || 1;
       } else if (diffDays === 1) {
-        // Consecutive day
+        // Previous calendar day, continue streak
         stats.streak = (stats.streak || 1) + 1;
-      } else if (diffDays > 1) {
-        // Missed one+ days, reset
+      } else {
+        // Missed one or more days, reset streak
         stats.streak = 1;
       }
     }
