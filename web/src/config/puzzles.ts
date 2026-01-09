@@ -240,6 +240,24 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
+    id: "classic-medium-bridge-builder",
+    title: "Bridge Builder",
+    description:
+      "You’ve got the edges of a run. Build the bridge and lock the Small Straight.",
+    gameMode: "classic",
+    difficulty: "medium",
+    tags: ["small_straight", "routing", "fun"],
+    initialDice: [1, 2, 4, 6, 6],
+    constraints: {
+      requiredCategories: ["smallStraight"],
+    },
+    objective: {
+      type: "specific_category",
+      value: "smallStraight",
+      description: "Score a Small Straight (30 points)",
+    },
+  },
+  {
     id: "classic-medium-triangle-route",
     title: "The Triangle Route",
     description:
@@ -330,6 +348,96 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
+    id: "classic-medium-11",
+    title: "Fork in the Road",
+    description:
+      "A clean pair and a tempting spread. Can you route this into value across three categories?",
+    gameMode: "classic",
+    difficulty: "medium",
+    tags: ["multi_category", "routing", "upper_section"],
+    initialDice: [2, 2, 4, 5, 6],
+    constraints: {
+      requiredCategories: ["twos", "fours", "chance"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 40,
+      description: "Score at least 40 total across Twos, Fours, and Chance",
+    },
+  },
+  {
+    id: "classic-medium-12",
+    title: "Small Steps, Big Finish",
+    description:
+      "You’re one die away from a line. Secure the Small Straight, then cash out the leftovers in Chance.",
+    gameMode: "classic",
+    difficulty: "medium",
+    tags: ["multi_category", "small_straight", "chance"],
+    initialDice: [1, 2, 3, 4, 6],
+    constraints: {
+      requiredCategories: ["smallStraight", "chance"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 52,
+      description: "Score at least 52 total across Small Straight and Chance",
+    },
+  },
+  {
+    id: "classic-medium-13",
+    title: "Full House Warm-Up",
+    description:
+      "Two pairs is a great start—turn it into a Full House and still get a respectable Chance.",
+    gameMode: "classic",
+    difficulty: "medium",
+    tags: ["multi_category", "full_house", "chance", "pairs"],
+    initialDice: [3, 3, 5, 5, 1],
+    constraints: {
+      requiredCategories: ["fullHouse", "chance"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 50,
+      description: "Score at least 50 total across Full House and Chance",
+    },
+  },
+  {
+    id: "classic-medium-14",
+    title: "Steady Sixes",
+    description:
+      "A nice start, but not a guarantee. Build a solid Sixes score and back it up with a strong Three of a Kind.",
+    gameMode: "classic",
+    difficulty: "medium",
+    tags: ["multi_category", "sixes", "three_of_kind", "strategy"],
+    initialDice: [6, 6, 3, 4, 5],
+    constraints: {
+      requiredCategories: ["sixes", "threeOfKind"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 40,
+      description: "Score at least 40 total across Sixes and Three of a Kind",
+    },
+  },
+  {
+    id: "classic-hard-four-kind-heavy",
+    title: "Heavy Machinery",
+    description:
+      "You’re close to power. Build a Four of a Kind — but it has to be worth it.",
+    gameMode: "classic",
+    difficulty: "hard",
+    tags: ["four_of_kind", "power", "category_minimum"],
+    initialDice: [6, 6, 5, 2, 4],
+    constraints: {
+      requiredCategories: ["fourOfKind"],
+    },
+    objective: {
+      type: "category_minimum",
+      value: 26,
+      description: "Score at least 26 in Four of a Kind",
+    },
+  },
+  {
     id: "classic-hard-exact-42-split",
     title: "Split Decision",
     description: "Balance two categories without overshooting either.",
@@ -416,6 +524,24 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
+    id: "classic-multi-14",
+    title: "Upper Weave",
+    description:
+      "Stitch the upper section together. Fives and Sixes both need to pull their weight.",
+    gameMode: "classic",
+    difficulty: "hard",
+    tags: ["multi_category", "upper_section", "fives", "sixes"],
+    initialDice: [5, 6, 6, 2, 4],
+    constraints: {
+      requiredCategories: ["fives", "sixes"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 38,
+      description: "Score at least 38 total across Fives and Sixes",
+    },
+  },
+  {
     id: "classic-hard-even-engine",
     title: "Even Engine",
     description:
@@ -451,6 +577,44 @@ export const PUZZLES: Puzzle[] = [
       value: 56,
       description:
         "Score at least 56 total across Aces, Threes, Fives, and Chance",
+    },
+  },
+  {
+    id: "classic-multi-16",
+    title: "Crossroads",
+    description:
+      "Every roll feeds two masters. Balance structure and value without wasting pips.",
+    gameMode: "classic",
+    difficulty: "hard",
+    tags: ["multi_category", "routing"],
+    initialDice: [2, 3, 4, 4, 6],
+    constraints: {
+      requiredCategories: ["smallStraight", "fours", "chance"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 55,
+      description:
+        "Score at least 55 total across Small Straight, Fours, and Chance",
+    },
+  },
+  {
+    id: "classic-multi-22",
+    title: "Low-High Exchange",
+    description:
+      "Sacrifice low-value categories to fuel high returns.",
+    gameMode: "classic",
+    difficulty: "hard",
+    tags: ["multi_category", "aces", "chance", "four_of_kind"],
+    initialDice: [1, 1, 5, 5, 6],
+    constraints: {
+      requiredCategories: ["aces", "fourOfKind", "chance"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 48,
+      description:
+        "Score at least 48 total across Aces, Four of a Kind, and Chance",
     },
   },
   {
@@ -547,6 +711,99 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
+    id: "classic-five-1",
+    title: "Five-Way Junction",
+    description:
+      "Five paths diverge from the same roll. Choose carefully — every category competes for the same dice.",
+    gameMode: "classic",
+    difficulty: "expert",
+    tags: ["multi_category", "routing", "five_categories", "expert"],
+    initialDice: [2, 3, 3, 4, 5],
+    constraints: {
+      requiredCategories: [
+        "smallStraight",
+        "threeOfKind",
+        "threes",
+        "chance",
+        "fours",
+      ],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 85,
+      description:
+        "Score at least 85 total across Small Straight, Three of a Kind, Threes, Fours, and Chance",
+    },
+  },
+  {
+    id: "classic-five-2",
+    title: "Upper Section Gauntlet",
+    description:
+      "No shortcuts. You must earn value across the upper section while still finding flexibility at the end.",
+    gameMode: "classic",
+    difficulty: "expert",
+    tags: ["multi_category", "upper_section", "chance", "five_categories", "expert"],
+    initialDice: [],
+    constraints: {
+      requiredCategories: [
+        "aces",
+        "twos",
+        "threes",
+        "fours",
+        "chance",
+      ],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 55,
+      description:
+        "Score at least 55 total across Aces, Twos, Threes, Fours, and Chance",
+    },
+  },
+  {
+    id: "classic-five-3",
+    title: "Structure Under Pressure",
+    description:
+      "Every roll must serve multiple goals. Miss once, and the whole plan collapses.",
+    gameMode: "classic",
+    difficulty: "expert",
+    tags: ["multi_category", "routing", "five_categories", "expert"],
+    initialDice: [1, 2, 2, 3, 6],
+    constraints: {
+      requiredCategories: [
+        "fullHouse",
+        "smallStraight",
+        "threeOfKind",
+        "sixes",
+        "chance",
+      ],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 92,
+      description:
+        "Score at least 92 total across Full House, Small Straight, Three of a Kind, Sixes, and Chance",
+    },
+  },
+  {
+    id: "classic-expert-exact-split-60",
+    title: "Perfect Split",
+    description:
+      "Two categories. One exact total. The route is yours — the margin isn’t.",
+    gameMode: "classic",
+    difficulty: "expert",
+    tags: ["multi_category", "precision", "score_exactly"],
+    initialDice: [2, 2, 3, 5, 6],
+    constraints: {
+      requiredCategories: ["fourOfKind", "chance"],
+    },
+    objective: {
+      type: "score_exactly",
+      value: 60,
+      description: "Score exactly 60 total across Four of a Kind and Chance",
+    },
+  },
+  {
     id: "classic-expert-3",
     title: "Chaos Routing",
     description:
@@ -590,6 +847,34 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
+    id: "classic-eight-1",
+    title: "The Octagon",
+    description:
+      "Eight demands. One scorecard. Every decision echoes through the rest of the run.",
+    gameMode: "classic",
+    difficulty: "expert",
+    tags: ["multi_category", "routing", "eight_categories", "expert"],
+    initialDice: [],
+    constraints: {
+      requiredCategories: [
+        "aces",
+        "threes",
+        "fours",
+        "sixes",
+        "threeOfKind",
+        "fullHouse",
+        "smallStraight",
+        "chance",
+      ],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 140,
+      description:
+        "Score at least 140 total across all 8 required categories",
+    },
+  },
+  {
     id: "classic-expert-straightjacket",
     title: "Straightjacket",
     description: "The line constrains everything else.",
@@ -604,6 +889,31 @@ export const PUZZLES: Puzzle[] = [
       type: "score_at_least",
       value: 65,
       description: "Score at least 65 total across Large Straight and Chance",
+    },
+  },
+  {
+    id: "classic-multi-24",
+    title: "Structured Chaos",
+    description:
+      "Five demands, one roll at a time.",
+    gameMode: "classic",
+    difficulty: "expert",
+    tags: ["multi_category", "five_categories", "expert"],
+    initialDice: [2, 3, 4, 5, 6],
+    constraints: {
+      requiredCategories: [
+        "smallStraight",
+        "largeStraight",
+        "threeOfKind",
+        "fives",
+        "chance",
+      ],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 115,
+      description:
+        "Score at least 115 total across all required categories",
     },
   },
   {
@@ -958,30 +1268,30 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
-  id: "rainbow-hard-low-spectrum-42",
-  title: "Low Spectrum",
-  description:
-    "Small numbers, limited colors, zero margin for error.",
-  gameMode: "rainbow",
-  difficulty: "hard",
-  tags: ["precision", "low_values", "threeColorMix", "score_exactly"],
-  initialDice: [],
-  constraints: {
-    requiredCategories: [
-      "aces",
-      "twos",
-      "threes",
-      "chance",
-      "threeColorMix",
-    ],
-  },
-  objective: {
-    type: "score_exactly",
-    value: 42,
+    id: "rainbow-hard-low-spectrum-42",
+    title: "Low Spectrum",
     description:
-      "Score exactly 42 total across Aces, Twos, Threes, Chance, and Three-Color Mix",
+      "Small numbers, limited colors, zero margin for error.",
+    gameMode: "rainbow",
+    difficulty: "hard",
+    tags: ["precision", "low_values", "threeColorMix", "score_exactly"],
+    initialDice: [],
+    constraints: {
+      requiredCategories: [
+        "aces",
+        "twos",
+        "threes",
+        "chance",
+        "threeColorMix",
+      ],
+    },
+    objective: {
+      type: "score_exactly",
+      value: 42,
+      description:
+        "Score exactly 42 total across Aces, Twos, Threes, Chance, and Three-Color Mix",
+    },
   },
-},
   {
     id: "rainbow-hard-2",
     title: "Rainbow Rush",
@@ -1008,14 +1318,14 @@ export const PUZZLES: Puzzle[] = [
     difficulty: "hard",
     tags: ["multi_category", "all_color", "chance"],
     initialDice: [1, 1, 1, 1, 1],
-    initialColors: ["red", "green", "red", "green", "yellow"],
+    initialColors: ["red", "green", "red", "green", "red"],
     constraints: {
       requiredCategories: ["allRed", "allGreen", "chance"],
     },
     objective: {
       type: "score_at_least",
-      value: 120,
-      description: "Score All Red, All Green, and at least 20 in Chance",
+      value: 110,
+      description: "Score All Red, All Green, and at least 10 in Chance",
     },
   },
   {
@@ -1138,43 +1448,43 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
-  id: "rainbow-hard-purple-pressure",
-  title: "Purple Pressure",
-  description:
-    "Structure fights instinct. Purple decides everything.",
-  gameMode: "rainbow",
-  difficulty: "hard",
-  tags: ["multi_category", "full_house", "chance", "all_color"],
-  initialDice: [],
-  constraints: {
-    requiredCategories: ["fullHouse", "chance", "allPurple"],
-  },
-  objective: {
-    type: "score_at_least",
-    value: 95,
+    id: "rainbow-hard-purple-pressure",
+    title: "Purple Pressure",
     description:
-      "Score at least 95 total across Full House, Chance, and All Purple",
+      "Structure fights instinct. Purple decides everything.",
+    gameMode: "rainbow",
+    difficulty: "hard",
+    tags: ["multi_category", "full_house", "chance", "all_color"],
+    initialDice: [],
+    constraints: {
+      requiredCategories: ["fullHouse", "chance", "allPurple"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 95,
+      description:
+        "Score at least 95 total across Full House, Chance, and All Purple",
+    },
   },
-},
-{
-  id: "rainbow-expert-chromatic-backbone",
-  title: "Chromatic Backbone",
-  description:
-    "A straight spine, reinforced by color discipline.",
-  gameMode: "rainbow",
-  difficulty: "expert",
-  tags: ["multi_category", "large_straight", "all_color", "expert"],
-  initialDice: [],
-  constraints: {
-    requiredCategories: ["largeStraight", "smallStraight", "allGreen"],
-  },
-  objective: {
-    type: "score_at_least",
-    value: 120,
+  {
+    id: "rainbow-expert-chromatic-backbone",
+    title: "Chromatic Backbone",
     description:
-      "Score at least 120 total across Large Straight, Small Straight, and All Green",
+      "A straight spine, reinforced by color discipline.",
+    gameMode: "rainbow",
+    difficulty: "expert",
+    tags: ["multi_category", "large_straight", "all_color", "expert"],
+    initialDice: [],
+    constraints: {
+      requiredCategories: ["largeStraight", "smallStraight", "allGreen"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 120,
+      description:
+        "Score at least 120 total across Large Straight, Small Straight, and All Green",
+    },
   },
-},
 
   // =====================
   // RAINBOW – EXPERT
@@ -1216,43 +1526,43 @@ export const PUZZLES: Puzzle[] = [
     },
   },
   {
-  id: "rainbow-expert-the-blue-ceiling",
-  title: "The Blue Ceiling",
-  description:
-    "Big scores are possible—but the color cap is unforgiving.",
-  gameMode: "rainbow",
-  difficulty: "expert",
-  tags: ["multi_category", "upper_section", "chance", "all_color", "expert"],
-  initialDice: [],
-  constraints: {
-    requiredCategories: ["fours", "sixes", "chance", "allBlue"],
-  },
-  objective: {
-    type: "score_at_least",
-    value: 110,
+    id: "rainbow-expert-the-blue-ceiling",
+    title: "The Blue Ceiling",
     description:
-      "Score at least 110 total across Fours, Sixes, Chance, and All Blue",
+      "Big scores are possible—but the color cap is unforgiving.",
+    gameMode: "rainbow",
+    difficulty: "expert",
+    tags: ["multi_category", "upper_section", "chance", "all_color", "expert"],
+    initialDice: [],
+    constraints: {
+      requiredCategories: ["fours", "sixes", "chance", "allBlue"],
+    },
+    objective: {
+      type: "score_at_least",
+      value: 110,
+      description:
+        "Score at least 110 total across Fours, Sixes, Chance, and All Blue",
+    },
   },
-},
-{
-  id: "rainbow-expert-violet-endgame",
-  title: "Violet Endgame",
-  description:
-    "Late-game precision under total color control.",
-  gameMode: "rainbow",
-  difficulty: "expert",
-  tags: ["multi_category", "precision", "chance", "all_color", "expert"],
-  initialDice: [],
-  constraints: {
-    requiredCategories: ["chance", "threeOfKind", "allPurple"],
-  },
-  objective: {
-    type: "score_exactly",
-    value: 92,
+  {
+    id: "rainbow-expert-violet-endgame",
+    title: "Violet Endgame",
     description:
-      "Score exactly 92 total across Chance, Three of a Kind, and All Purple",
+      "Late-game precision under total color control.",
+    gameMode: "rainbow",
+    difficulty: "expert",
+    tags: ["multi_category", "precision", "chance", "all_color", "expert"],
+    initialDice: [],
+    constraints: {
+      requiredCategories: ["chance", "threeOfKind", "allPurple"],
+    },
+    objective: {
+      type: "score_exactly",
+      value: 92,
+      description:
+        "Score exactly 92 total across Chance, Three of a Kind, and All Purple",
+    },
   },
-},
 
   // =========================
   // RAINBOW – MULTI-CATEGORY

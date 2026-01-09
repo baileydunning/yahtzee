@@ -1159,7 +1159,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'puzzle-master',
     title: 'Puzzle Master',
-    description: 'Solve every puzzle',
+    description: 'Solve 70 puzzles',
     category: 'puzzle',
     modes: ['classic', 'rainbow'],
     icon: '🏰',
