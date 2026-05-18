@@ -1,26 +1,17 @@
-import { Resource, databases } from "harperdb";
+import { databases, Resource } from "harper";
 
-const HighScoresTable = databases.yahtzee.HighScores
+const HighScoresTable = databases.yahtzee.HighScores;
 
-export class HighScores extends Resource {
+export class HighScores extends HighScoresTable {
     static loadAsInstance = false;
 
-    async get() {
-        const results = await HighScoresTable.get();
-        return {
-            statusCode: 200,
-            body: results,
-        }
+    async get(target) {
+        return super.get(target);
     }
 
     async post(target, data) {
-
         const record = { ...data, createdAt: new Date().toISOString() };
-        
-        await HighScoresTable.create(record);
-        return {
-            statusCode: 201,
-            body: record,
-        }
+        await super.post(target, record);
+        return record;
     }
 }

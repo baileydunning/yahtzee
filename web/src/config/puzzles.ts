@@ -369,18 +369,18 @@ export const PUZZLES: Puzzle[] = [
     id: "classic-medium-12",
     title: "Small Steps, Big Finish",
     description:
-      "You’re one die away from a line. Secure the Small Straight, then cash out the leftovers in Chance.",
+      "You’re one die away from a line. Secure the Large Straight, then cash out the leftovers in Chance.",
     gameMode: "classic",
     difficulty: "medium",
-    tags: ["multi_category", "small_straight", "chance"],
-    initialDice: [1, 2, 3, 4, 6],
+    tags: ["multi_category", "large_straight", "chance"],
+    initialDice: [2, 2, 3, 4, 6],
     constraints: {
-      requiredCategories: ["smallStraight", "chance"],
+      requiredCategories: ["largeStraight", "chance"],
     },
     objective: {
       type: "score_at_least",
-      value: 52,
-      description: "Score at least 52 total across Small Straight and Chance",
+      value: 62,
+      description: "Score at least 62 total across Large Straight and Chance",
     },
   },
   {

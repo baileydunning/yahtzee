@@ -27,7 +27,7 @@ export const gameService = {
   // -----------------------------
 
   async getHighScores(): Promise<HighScore[]> {
-    const res = await fetch('/HighScores', {
+    const res = await fetch('/HighScores/', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -39,7 +39,7 @@ export const gameService = {
       throw new Error(`Failed to fetch high scores: ${res.status} ${text}`);
     }
 
-    const data = (await res.json()).body as HighScore[];
+    const data = (await res.json()) as HighScore[];
     return data;
   },
 
@@ -48,7 +48,7 @@ export const gameService = {
       ...score,
     };
 
-    const res = await fetch('/HighScores', {
+    const res = await fetch('/HighScores/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
