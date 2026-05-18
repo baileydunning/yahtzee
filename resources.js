@@ -5,6 +5,14 @@ const HighScoresTable = databases.yahtzee.HighScores;
 export class HighScores extends HighScoresTable {
     static loadAsInstance = false;
 
+    allowRead() {
+        return true;
+    }
+
+    allowCreate() {
+        return true;
+    }
+
     async get(target) {
         return super.get(target);
     }
